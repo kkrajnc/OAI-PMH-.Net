@@ -1,0 +1,246 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+@model FederatedSearch.Models.OAIModel
+@{
+    ViewBag.Title = "OAI-PMH response time test";
+    var options = new AjaxOptions()
+    {
+        Url = "/",
+        LoadingElementId = "waiting",
+        LoadingElementDuration = 100,
+        OnSuccess = "onSuccess"
+    };  
+}
+
+<h2>Test response times of DKUM and local repository</h2>
+<hr style="margin-top: 0px; padding-top: 0px;" />
+
+@using (Ajax.BeginForm(options))
+{
+    <div class="row">
+        <div class="col-md-2">
+            <label class="control-label" for="verbSelect">Action: </label>
+            <div id="verbSelect" class="dropdown">
+                <button id="verbBtn" class="btn dropdown-toggle form-control oaiBtn" name="Verb" data-toggle="dropdown"
+                    @*style="width: calc(100% - 10px)"*@ value="Verb">
+                    Verb
+                    <b class="caret" style="margin-left: 5px;"></b>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a style="cursor: pointer" onclick="verbChanged('Identify')">Identify</a></li>
+                    <li><a style="cursor: pointer" onclick="verbChanged('GetRecord')">GetRecord</a></li>
+                    <li><a style="cursor: pointer" onclick="verbChanged('ListIdentifiers')">ListIdentifiers</a></li>
+                    <li><a style="cursor: pointer" onclick="verbChanged('ListRecords')">ListRecords</a></li>
+                    <li><a style="cursor: pointer" onclick="verbChanged('ListMetadataFormats')">ListMetadataFormats</a></li>
+                    <li><a style="cursor: pointer" onclick="verbChanged('ListSets')">ListSets</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-10">
+            <div id="fromCnt" class="cnt">
+                <label for="from">From: </label>
+                <input id="from" name="From" type="datetime" class="form-control" oninput="changeQueryText()" />
+            </div>
+            <div id="untilCnt" class="cnt">
+                <label for="until">Until: </label>
+                <input id="until" name="Until" type="datetime" class="form-control" oninput="changeQueryText()" />
+            </div>
+            <div id="metaPrefixCnt" class="cnt">
+                <label for="metadataPrefix">Metadata prefix: </label>
+                <input id="metadataPrefix" name="MetadataPrefix" type="text" class="form-control" oninput="changeQueryText()" />
+            </div>
+            <div id="setCnt" class="cnt">
+                <label for="set">Set: </label>
+                <input id="set" name="Set" type="text" class="form-control" oninput="changeQueryText()" />
+            </div>
+            <div id="resTokenCnt" class="cnt">
+                <label for="resumptionToken">Resumption token: </label>
+                <input id="resumptionToken" name="ResumptionToken" type="text" class="form-control" oninput="changeQueryText()" />
+            </div>
+            <div id="identifierCnt" class="cnt">
+                <label for="identifier">Identifier: </label>
+                <input id="identifier" name="Identifier" type="text" class="form-control" oninput="changeQueryText()" />
+            </div>
+        </div>
+    </div>
+    
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-2">
+            <label for="urlQueryTxtBox">URL query: </label>
+        </div>
+        <div class="col-md-10">
+            <input id="urlQueryTxtBox" name="UrlQuery" type="text" class="form-control" style="margin-left: 25px; width: calc(100% - 25px);" />
+        </div>
+    </div>
+    <br />
+
+    <hr style="height: 5px;" />
+    
+    <br />
+    <div class="clearfix">
+    </div>
+    
+    <div class="row">
+        <div class="col-md-2">
+            <input id="startBtn" type="submit" value="Start" class="btn oaiBtn btn-default" />
+        </div>
+        <div class="col-md-10">
+            <div id="waiting" style="display: none; color: #66afe9; font-weight: bold">
+                <p>Waiting for response...</p>
+            </div>
+
+
+            <div class="row-fluid" style="background-color: ButtonFace; width: calc(100% - 25px); margin-left: 25px;">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row-fluid">
+                            <label for="dkumLabel">DKUM: </label>
+                            <label id="dkumLabel"></label>
+                        </div>
+                        <div class="row-fluid">
+                            <label for="localServiceLabel">Local service: </label>
+                            <label id="localServiceLabel"></label>
+                        </div>
+                        <div class="row-fluid">
+                            <label for="ratioLabel">Ratio: </label>
+                            <label id="ratioLabel"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="clearfix">
+</div>
+
+
+
+<div id="result"></div>
+
+<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+<script type="text/javascript">
+
+    function onSuccess(response) {
+        $("#dkumLabel").text(response.DkumResult + "s");
+        $("#localServiceLabel").text(response.LocalResult + "s");
+        $("#ratioLabel").text(response.Ratio + " : 1");
+    }
+
+    function changeQueryText() {
+        var str = '';
+
+        if ($("#verbBtn").val() !== "Verb")
+            str = "verb=" + $("#verbBtn").val() + "&";
+
+        $('.cnt').each(function (index, object) {
+            var obj = $(object);
+            var child = obj.children()[1];
+            if (!obj.hasClass('hide') && child.value !== '')
+                str += child.id + "=" + child.value + '&';
+        });
+
+        if (str[str.length - 1] === '&')
+            str = str.substr(0, str.length - 1);
+
+        $('#urlQueryTxtBox').val(str);
+    }
+
+    function setVerbButton(verb) {
+        $("#verbBtn").text(verb);
+        $("#verbBtn").val(verb);
+        $("#verbBtn").append('<span class="caret" style="margin-left:5px;"></span>');
+    }
+
+    function verbChanged(verb) {
+        switch (verb) {
+            case 'Identify':
+                $('#fromCnt').addClass('hide');
+                $('#untilCnt').addClass('hide');
+                $('#metaPrefixCnt').addClass('hide');
+                $('#setCnt').addClass('hide');
+                $('#resTokenCnt').addClass('hide');
+                $('#identifierCnt').addClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            case 'GetRecord':
+                $('#fromCnt').addClass('hide');
+                $('#untilCnt').addClass('hide');
+                $('#metaPrefixCnt').removeClass('hide');
+                $('#setCnt').addClass('hide');
+                $('#resTokenCnt').addClass('hide');
+                $('#identifierCnt').removeClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            case 'ListIdentifiers':
+                $('#fromCnt').removeClass('hide');
+                $('#untilCnt').removeClass('hide');
+                $('#metaPrefixCnt').removeClass('hide');
+                $('#setCnt').removeClass('hide');
+                $('#resTokenCnt').removeClass('hide');
+                $('#identifierCnt').addClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            case 'ListRecords':
+                $('#fromCnt').removeClass('hide');
+                $('#untilCnt').removeClass('hide');
+                $('#metaPrefixCnt').removeClass('hide');
+                $('#setCnt').removeClass('hide');
+                $('#resTokenCnt').removeClass('hide');
+                $('#identifierCnt').addClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            case 'ListMetadataFormats':
+                $('#fromCnt').addClass('hide');
+                $('#untilCnt').addClass('hide');
+                $('#metaPrefixCnt').addClass('hide');
+                $('#setCnt').addClass('hide');
+                $('#resTokenCnt').addClass('hide');
+                $('#identifierCnt').removeClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            case 'ListSets':
+                $('#fromCnt').addClass('hide');
+                $('#untilCnt').addClass('hide');
+                $('#metaPrefixCnt').addClass('hide');
+                $('#setCnt').addClass('hide');
+                $('#resTokenCnt').removeClass('hide');
+                $('#identifierCnt').addClass('hide');
+                setVerbButton(verb);
+                changeQueryText();
+                break;
+            default:
+                $('#fromCnt').addClass('hide');
+                $('#untilCnt').addClass('hide');
+                $('#metaPrefixCnt').addClass('hide');
+                $('#setCnt').addClass('hide');
+                $('#resTokenCnt').addClass('hide');
+                $('#identifierCnt').addClass('hide');
+                break;
+        }
+    }
+</script>

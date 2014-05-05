@@ -1,0 +1,81 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+@model IEnumerable<FederatedSearch.Models.OAIDataProvider>
+@using FederatedSearch.Controllers
+@{
+    ViewBag.Title = "DataProviderList";
+}
+
+<h2>Data Provider List</h2>
+<hr style="margin-top: 0px; padding-top: 0px;" />
+
+@if (Model == null || Model.Count() < 1)
+{
+    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", new { id = "AddRepository" })</p>
+    <br />
+}
+else
+{
+    <p>@Html.ActionLink("Add", "DataProvider", new { id = "AddRepository" })</p>
+    <br />
+}
+
+@foreach (var item in Model)
+{
+    <div class="row-fluid" style="background-color: ButtonFace;">
+        <div class="panel panel-default">
+            <div class="panel-body listItem">
+                <div class="col-md-12">
+                    <p style="font-size: 1.5em">@Html.DisplayFor(modelItem => item.RepositoryName)</p>
+                    <div class="row">
+                        <div class="col-md-2"><strong>Base URL: </strong></div>
+                        <div class="col-md-10">@Html.DisplayFor(modelItem => item.BaseURL)</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"><strong>Granularity: </strong></div>
+                        <div class="col-md-4">@(string.IsNullOrEmpty(item.Granularity) ? "/" : item.Granularity)</div>
+                        <div class="col-md-2"><strong>Protocol: </strong></div>
+                        <div class="col-md-1">@(string.IsNullOrEmpty(item.ProtocolVersion) ? "/" : ("v" + item.ProtocolVersion))</div>
+                        <div class="col-md-2"><strong>Deleted Records: </strong></div>
+                        <div class="col-md-1">@(string.IsNullOrEmpty(item.DeletedRecord) ? "/" : item.DeletedRecord)</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"><strong>Earliest Datestamp: </strong></div>
+                        <div class="col-md-4">@Html.DisplayFor(modelItem => item.EarliestDatestamp)</div>
+                        <div class="col-md-2"><strong>Last Harvesting: </strong></div>
+                        <div class="col-md-4">@(item.LastHarvesting.HasValue ? Html.DisplayFor(modelItem => item.LastHarvesting) : Html.Raw("/"))</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"><strong>Admin Emails: </strong></div>
+                        <div class="col-md-4">@Html.GetStackedList(item.AdminEmail)</div>
+                        <div class="col-md-2"><strong>Compressions: </strong></div>
+                        <div class="col-md-4">@Html.GetStackedList(item.Compression)</div>
+                    </div>
+                </div>
+                @*<div class="col-md-1">
+                    <br />
+                    <div class="row"><div class="col-md-12">@Html.ActionLink("Edit", "Edit", new { id = item.OAIDataProviderId })</div></div>
+                    <br />
+                    <div class="row"><div class="col-md-12">@Html.ActionLink("Details", "Details", new { id = item.OAIDataProviderId })</div></div>
+                    <br />
+                    <div class="row"><div class="col-md-12">@Html.ActionLink("Delete", "Delete", new { id = item.OAIDataProviderId })</div></div>
+                </div>*@
+            </div>
+        </div>
+    </div>
+}
+

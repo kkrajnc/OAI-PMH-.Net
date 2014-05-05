@@ -1,0 +1,258 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+@model List<FederatedSearch.Models.PageFileHarvestProperties>
+@using FederatedSearch.Controllers
+@{
+    ViewBag.Title = "Page File Harvest Properties";
+    string baseLocalUrl = Common.GetBaseUrl(Html.ViewContext.RequestContext.HttpContext);
+    var sectionList = ViewBag.SectionList as Dictionary<string, string> ?? new Dictionary<string, string>();
+}
+
+<h2>Properties</h2>
+<hr style="margin-top: 0px; padding-top: 0px;" />
+
+
+@if (Model != null && Model.Count > 0)
+{
+    foreach (var item in Model)
+    {
+        /*status = ok,
+          baseUri = baseUri,
+          firstHttpMethod = firstHttpMethod,
+          secondHttpMethod = secondHttpMethod,
+          lineRegex = lineRegex,
+          valueRegex = valueRegex,
+          secondTierValueOption = secondTierValueOption
+           * */
+        if (item != null)
+        {
+    <div id="propertiesTable" class="panel panel-default">
+        <div class="panel-body listItem" data-base-uri="@(item.BaseUri)" data-first-http-method="@(item.FirstHttpMethod)"
+                data-second-http-method="@(item.SecondHttpMethod)" data-line-regex="@(item.LineRegex)"
+                data-value-regex="@(item.ValueRegex)" data-second-tier-value-option="@(item.SecondTierValueOption)">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Base URI:</strong> <span data-name="baseUri">@(item.BaseUri)</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>1. Method:</strong> <span data-name="firstHttpMethod">@(item.FirstHttpMethod)</span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Line Regex:</strong> <span data-name="lineRegex">@(item.LineRegex)</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>2. Method:</strong> <span data-name="secondHttpMethod">@(item.SecondHttpMethod)</span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Value Regex:</strong> <span data-name="valueRegex">@(item.ValueRegex)</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Second tier value option:</strong> <span data-name="secondTierValueOption">@(item.SecondTierValueOption)</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group" style="width: 100%;">
+                        <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="editProperty(this)">Edit</button>
+                        <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        }
+    }
+}
+<div>
+    <div>
+        <input type="text" class="form-control" placeholder="Name" />
+    </div>
+    <div>
+        <input type="text" class="form-control" placeholder="Value" />
+    </div>
+    <div>
+        <div class="btn-group" style="width: 100%;">
+            <button type="button" style="width: 100%;" class="btn oaiBtn btn-default" onclick="addProperty(this)">Add Property</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function getOptionsDiv(button) {
+        return $(button).parent('div').parent('div').siblings('div').first();
+    }
+
+    function getOptions(rowDiv, isEditMode) {
+        var options = new Object();
+        rowDiv.find('span').each(function () {
+            var current = $(this);
+            switch (current.data('name')) {
+                case 'baseUri':
+                    options.baseUri = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
+                case 'firstHttpMethod':
+                    options.firstHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                case 'secondHttpMethod':
+                    options.secondHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                case 'lineRegex':
+                    options.lineRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
+                case 'valueRegex':
+                    options.valueRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
+                case 'secondTierValueOption':
+                    options.secondTierValueOption = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+            }
+        });
+        return options;
+    }
+
+    function setOptions(rowDiv, options, isEditMode) {
+        var options = new Object();
+        var txtBox = $('<input>').prop('type', 'text').addClass('form-control');
+        var methodSelect = $('<select>').append('<option value="GET">GET</option>')
+                                        .append('<option value="POST">POST</option>');
+        var optionSelect = $('<select>').append('<option value="ConcatenateURL">ConcatenateURL</option>')
+                                        .append('<option value="Key">Key</option>');
+        rowDiv.find('span').each(function () {
+            var current = $(this);
+            switch (current.data('name')) {
+                case 'baseUri':
+                    /*isEditMode ? current.empty().append(txtBox.val(options.baseUri)) :*/ current.text(options.baseUri);
+                case 'firstHttpMethod':
+                    isEditMode ? current.empty().append(
+                        methodSelect.children('option[value="' + options.firstHttpMethod + '"]').prop('selected', 'selected')) :
+                        current.text(options.firstHttpMethod);
+                case 'secondHttpMethod':
+                    isEditMode ? current.empty().append(
+                        methodSelect.children('option[value="' + options.secondHttpMethod + '"]').prop('selected', 'selected')) :
+                        current.text(options.secondHttpMethod);
+                case 'lineRegex':
+                    isEditMode ? current.empty().append(txtBox.val(options.lineRegex)) : current.text(options.lineRegex);
+                case 'valueRegex':
+                    isEditMode ? current.empty().append(txtBox.val(options.valueRegex)) : current.text(options.valueRegex);
+                case 'secondTierValueOption':
+                    isEditMode ? current.empty().append(
+                        optionSelect.children('option[value="' + options.secondTierValueOption + '"]').prop('selected', 'selected')) :
+                        current.text(options.secondTierValueOption);
+            }
+        });
+    }
+
+    function addedProperty(data) {
+        switch (data.status) {
+            case 'ok':
+                $('#propertiesTable').append(
+                    '<div class="panel-body listItem"><div class="row"><div class="col-md-10"><div class="row"><div class="col-md-8">' +
+                    '<p><strong>Base URI:</strong> <span data-name="baseUri">' + data.baseUri + '</span></p></div><div class="col-md-4">' +
+                    '<p><strong>1. Method:</strong> <span data-name="firstHttpMethod">' + data.firstHttpMethod + '</span></p></div></div><div class="row"><div class="col-md-8">' +
+                    '<p><strong>Line Regex:</strong> <span data-name="lineRegex">' + $('<div/>').text(data.lineRegex).html() + '</span></p></div><div class="col-md-4">' +
+                    '<p><strong>2. Method:</strong> <span data-name="secondHttpMethod">' + data.secondHttpMethod + '</span></p></div></div><div class="row"><div class="col-md-8">' +
+                    '<p><strong>Value Regex:</strong> <span data-name="valueRegex">' + $('<div/>').text(data.valueRegex).html() + '</span></p></div><div class="col-md-4">' +
+                    '<p><strong>Second tier value option:</strong> <span data-name="secondTierValueOption">' + data.secondTierValueOption + '</span></p></div></div></div>' +
+                    '<div class="col-md-2"><div class="btn-group" style="width: 100%;">' +
+                    '<button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="editProperty(this)">Edit</button>' +
+                    '<button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>' +
+                    '</div></div></div></div>');
+                break;
+            case 'failure':
+                break;
+        }
+    }
+
+    function addProperty(button) {
+        var optionsDiv = getOptionsDiv(button);
+        var options = getOptions(optionsDiv);
+        jsonRequest(
+            '@baseLocalUrl/Repository/Properties/AddOrUpdate',
+            JSON.stringify({ options: options })
+        ).done(addedProperty);
+        }
+
+        function editedProperty(data) {
+            switch (data.status) {
+                case 'ok':
+                    $('#propertiesTable > tbody > tr').each(function () {
+                        if ($(this).find('td:eq(0)').text().trim() == data.name) {
+                            $(this).children('td:nth-child(2)').html(data.value);
+                            $(this).children('td:nth-child(4)').children('button:contains(Save)').text('Edit');
+                            $(this).children('td:nth-child(4)').children('button:contains(Cancel)').text('Delete');
+                        }
+                    });
+                    break;
+                case 'failure':
+                    break;
+            }
+        }
+
+        function editProperty(button) {
+            var optionsDiv = getOptionsDiv(button);
+            var options = getOptions(optionsDiv);
+            switch ($(button).text()) {
+                case 'Edit':
+                    $(button).text('Save');
+                    $(button).siblings().text('Cancel');
+                    setOptions(optionsDiv, options, true);
+                    break;
+                case 'Save':
+                    jsonRequest(
+                        '@baseLocalUrl/Repository/Properties/AddOrUpdate',
+                        JSON.stringify({ options: options })
+                    ).done(editedProperty);
+                        break;
+                }
+            }
+
+            function deletedProperty(data) {
+                $('#propertiesTable' + data.section + ' > tbody > tr').each(function () {
+                    if ($(this).find('td:eq(0)').text().trim() == data.name) {
+                        $(this).remove();
+                    }
+                });
+            }
+
+            function deleteProperty(button) {
+                switch ($(button).text()) {
+                    case 'Delete':
+                        var row = getButtonRow(button);
+                        jsonRequest(
+                            '@baseLocalUrl/Repository/Properties/Delete',
+                    JSON.stringify({
+                        name: row.children('td:nth-child(1)').text().trim(),
+                        section: getSectionName(row)
+                    })
+                ).done(deletedProperty);
+                        break;
+                    case 'Cancel':
+                        var row = getButtonRow(button);
+                        var currentValue = row.children('td:nth-child(2)').children('input[type="text"]').data('currentValue');
+                        row.children('td:nth-child(2)').html(currentValue);
+                        row.children('td:nth-child(3)').html('');
+                        $(button).siblings().text('Edit');
+                        $(button).text('Delete');
+                        setHeaderSectionText('');
+                        break;
+                }
+            }
+
+</script>
+<script src="@Url.Content("~/Scripts/CommonOAI.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>

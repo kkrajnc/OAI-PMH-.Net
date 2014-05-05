@@ -1,0 +1,94 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+@using FederatedSearch.Controllers;
+@model FederatedSearch.Models.Metadata
+@{
+    ViewBag.Title = "MetadataItem";
+}
+
+<h2>Metadata item</h2>
+<hr style="margin-top: 0px; padding-top: 0px;" />
+
+@if (Model != null)
+{
+    <h3>@Html.MetadataPreferedTitle(Model.Title, "slv", true)</h3>
+    <table class="table table-bordered">
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Creator)</strong></td>
+            <td>@Html.MetadataReverseNames(Model.Creator)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Subject)</strong></td>
+            <td>@Html.MetadataSubjectList(Model.Subject, "slv")
+            </td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Description)</strong></td>
+            <td>@Html.MetadataElementSplit(Model.Description, "slv")</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Contributor)</strong></td>
+            <td>@Html.MetadataReverseNames(Model.Contributor)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Publisher)</strong></td>
+            <td>@Html.DisplayFor(model => model.Publisher)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Date)</strong></td>
+            <td>@Html.DisplayFor(model => model.Date)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Type)</strong></td>
+            <td>@Html.MetadataElementSplit(Model.Type)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Format)</strong></td>
+            <td>@Html.DisplayFor(model => model.Format)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Identifier)</strong></td>
+            <td>@Html.DisplayFor(model => model.Identifier)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Source)</strong></td>
+            <td>@Html.DisplayFor(model => model.Source)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Language)</strong></td>
+            <td>@Html.DisplayFor(model => model.Language)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Relation)</strong></td>
+            <td>@Html.DisplayFor(model => model.Relation)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Coverage)</strong></td>
+            <td>@Html.DisplayFor(model => model.Coverage)</td>
+        </tr>
+        <tr>
+            <td><strong>@Html.DisplayNameFor(model => model.Rights)</strong></td>
+            <td>@Html.DisplayFor(model => model.Rights)</td>
+        </tr>
+    </table>
+}
+else
+{
+    <p>
+        No record with this identifier exists.
+    </p>
+}

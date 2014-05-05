@@ -1,0 +1,116 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    @Styles.Render("~/Content/bootstrap/bootstrap.css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+</head>
+<body>
+    @using FederatedSearch.Controllers;
+    <header>
+        <nav id="pageNavigation" role="navigation" class="navbar navbar-custom navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div id="navbarCollapse" class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        @Html.MenuLink("Test", "Index", "Home")
+                        @Html.MenuLink("Metadata", "Metadata", "Home")
+                        @*@Html.MenuLink("Search", "Search", "Home")*@
+
+                        @Html.MenuLink("Repository ", "Index", "Repository", null, new MvcHtmlString[]{
+                                Html.MenuLink("Properties", "Properties", "Repository"),
+                                Html.MenuLink("Fileharvest Properties", "PageFileHarvestProperties", "Repository"),
+                                new MvcHtmlString("<li class=\"divider\"></li>"),
+                                Html.MenuLink("Data Providers", "DataProvider", "Repository", new { id = "List" }),
+                                new MvcHtmlString("<li class=\"divider\"></li>"),
+                                Html.MenuLink("Harvest", "Harvest", "Repository"),
+                                Html.MenuLink("Harvest record", "Harvest", "Repository", new { id = "Record" }),
+                                new MvcHtmlString("<li class=\"divider\"></li>"),
+                                Html.MenuLink("Delete Metadata", "DeleteMetadata", "Repository")
+                                /*new MvcHtmlString("<li class=\"divider\"></li>")*/
+                            })
+                    </ul>
+                    <div class="navbar-form navbar-right form-group">
+                        <input id="searchTextBox" name="search" type="text" placeholder="What would you like to..." class="form-control"
+                                value="@Request.QueryString["search"]" oninput="changedSearchValue()" />
+                        <button class="btn btn-primary" onclick="CheckSearchParameter()">Search</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <br />
+    <div id="body" style="margin-top: 50px; min-height: 400px;">
+        <section class="container">
+            @RenderBody()
+        </section>
+    </div>
+    <footer>
+        <div class="container" style="text-align: center">
+            <br />
+            <p>&copy; @DateTime.Now.Year - K.K.</p>
+        </div>
+    </footer>
+
+    @Scripts.Render("~/Scripts/bootstrap/bootstrap.min.js")
+    @Scripts.Render("~/Scripts/bootstrap/hoverMenu.js")
+    @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        $(document).ready(function () {
+            HoverMenu($('nav#pageNavigation'));
+        });
+
+        function changedSearchValue() {
+            if ($("#searchTextBox").hasClass("errorTextBox")) {
+                $("#searchTextBox").removeClass("errorTextBox", 500);
+            }
+        }
+
+        function CheckSearchParameter() {
+            var searchValue = $("#searchTextBox").val();
+            if (searchValue.length > 0) {
+                window.location.href = '@Url.Action("Metadata", "Home")?search=' + searchValue;
+            }
+            else {
+                $("#searchTextBox").addClass("errorTextBox", 500);
+            }
+        }
+
+        $("#searchTextBox").bind("enterKey", function (e) {
+            CheckSearchParameter();
+        });
+        $("#searchTextBox").keyup(function (e) {
+            if (e.keyCode == 13) {
+                $(this).trigger("enterKey");
+            }
+        });
+    </script>
+</body>
+</html>

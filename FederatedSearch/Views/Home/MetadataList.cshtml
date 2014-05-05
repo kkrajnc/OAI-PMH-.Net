@@ -1,0 +1,144 @@
+﻿@*     This file is part of OAI-PMH .Net.
+*  
+*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      it under the terms of the GNU General Public License as published by
+*      the Free Software Foundation, either version 3 of the License, or
+*      (at your option) any later version.
+*  
+*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      but WITHOUT ANY WARRANTY; without even the implied warranty of
+*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*      GNU General Public License for more details.
+*  
+*      You should have received a copy of the GNU General Public License
+*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*----------------------------------------------------------------------------*@
+
+@model IEnumerable<FederatedSearch.Models.MetaSearchResult>
+@using FederatedSearch.API.Common;
+@using FederatedSearch.Controllers;
+@{
+    ViewBag.Title = "Metadata list";
+}
+
+<h2>
+    @if(string.IsNullOrEmpty(Request.QueryString["search"]))
+    {
+        @Html.Raw("Metadata list")
+    }
+    else if(Model != null && Model.Count() > 0)
+    {
+        @Html.Raw("Search results for '" + Request.QueryString["search"] + "'")
+    }
+    else
+    {
+        @Html.Raw("Search for '" + Request.QueryString["search"] + "' yielded no results")
+    }
+</h2>
+<hr style="margin-top: 0px; padding-top: 0px;" />
+
+@foreach (var item in Model)
+{
+    <div class="row-fluid" style="background-color: ButtonFace;">
+        <div class="panel panel-default">
+            <div class="panel-body listItem">
+                <p>
+                    @Html.ActionLink(
+                        Html.MetadataPreferedTitle(item.Title, "slv", true).ToHtmlString(),
+                        "Metadata",
+                        new { id = item.OAI_Identifier },
+                        new { style = "font-size: 1.5em" })
+                </p>
+                <p>
+                    @Html.MetadataReverseNames(item.Creator)
+                    @(item.Date.HasValue ? item.Date.Value.Year.ToString() : "")
+                </p>
+                <p>
+                    <strong>Subjects: </strong>
+                    @Html.MetadataSubjectList(item.Subject, "slv")
+                </p>
+                <p>
+                    <strong>Last changed on: </strong>
+                    @(item.Datestamp.HasValue ? item.Datestamp.Value.ToString("dd.MM.yyyy HH:mm") : "N/A")
+                </p>
+            </div>
+        </div>
+    </div>
+}
+
+@{
+    int? resultCount = ViewBag.ResultCount;
+    int? page = ViewBag.PageNum;
+    int? ipp = ViewBag.ItemsPerPage;
+
+    string search = string.IsNullOrEmpty(ViewBag.Search) ? null : ViewBag.Search;
+
+    resultCount = resultCount.HasValue ? resultCount : 1;
+    ipp = !ipp.HasValue ? 10 : ipp.Value == 0 ? 10 : ipp;
+
+
+    int num = (resultCount.Value % ipp.Value == 0) ? (resultCount.Value / ipp.Value) : ((resultCount.Value / ipp.Value) + 1);
+
+    ipp = ipp.Value == 10 ? null : ipp;
+
+    if (num > 1)
+    {
+        int minNum, maxNum;
+        if (num > 10)
+        {
+            minNum = page.HasValue ? page.Value - 4 : -3;
+            maxNum = page.HasValue ? page.Value + 5 : 6;
+            int diff = 0;
+            if (minNum < 1)
+            {
+                diff = 1 - minNum;
+            }
+            if (maxNum > num)
+            {
+                diff = num - maxNum;
+            }
+            minNum += diff;
+            maxNum += diff;
+        }
+        else
+        {
+            minNum = 1;
+            maxNum = num;
+        }
+        
+    <div class="text-center">
+        <ul class="pagination">
+            <li @if ((page.HasValue && page.Value == 1) || (page.HasValue && page.Value == 0) || (!page.HasValue))
+                    { @Html.Raw("class=\"disabled\"");
+                    }>
+                @Html.ActionLink("«", "Metadata", new { search, ipp })
+            </li>
+            @if (minNum > 1)
+            {
+                <li>
+                    @Html.ActionLink("..", "Metadata", new { search, ipp, page = minNum - 1 })
+                </li>
+            }
+            @for (int i = minNum; i <= maxNum; i++)
+            {
+                <li @if ((page.HasValue && page.Value == i) || (!page.HasValue && i == 1))
+                    { @Html.Raw("class=\"active\"");
+                    }>
+                    @Html.ActionLink(i.ToString(), "Metadata", new { search, ipp, page = i })
+                </li>
+            }
+            @if (maxNum < num)
+            {
+                <li>
+                    @Html.ActionLink("..", "Metadata", new { search, ipp, page = maxNum + 1 })
+                </li>
+            }
+            <li @if ((page.HasValue && page.Value == num))
+                    { @Html.Raw("class=\"disabled\"");
+                    }>
+                @Html.ActionLink("»", "Metadata", new { search, ipp, page = num })
+            </li>
+        </ul>
+    </div>
+    }
+}

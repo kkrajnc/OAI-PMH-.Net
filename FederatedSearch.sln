@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAI-PMHDataProvider", "OAI-PMHDataProvider\OAI-PMHDataProvider.csproj", "{F600E28B-F0A4-499B-AE09-9CC9E7BD294B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FederatedSearch", "FederatedSearch\FederatedSearch.csproj", "{8E7A13D5-DE77-4A71-9D46-C7EF8D56C272}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F600E28B-F0A4-499B-AE09-9CC9E7BD294B} = {F600E28B-F0A4-499B-AE09-9CC9E7BD294B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAPI", "..\..\Visual Studio 2012\Projects\TestWebAPI\TestAPI\TestAPI.csproj", "{5D920D01-E1E9-4E59-B3DB-9973AB927608}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F600E28B-F0A4-499B-AE09-9CC9E7BD294B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F600E28B-F0A4-499B-AE09-9CC9E7BD294B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F600E28B-F0A4-499B-AE09-9CC9E7BD294B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F600E28B-F0A4-499B-AE09-9CC9E7BD294B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E7A13D5-DE77-4A71-9D46-C7EF8D56C272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E7A13D5-DE77-4A71-9D46-C7EF8D56C272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E7A13D5-DE77-4A71-9D46-C7EF8D56C272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E7A13D5-DE77-4A71-9D46-C7EF8D56C272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D920D01-E1E9-4E59-B3DB-9973AB927608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D920D01-E1E9-4E59-B3DB-9973AB927608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D920D01-E1E9-4E59-B3DB-9973AB927608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D920D01-E1E9-4E59-B3DB-9973AB927608}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
