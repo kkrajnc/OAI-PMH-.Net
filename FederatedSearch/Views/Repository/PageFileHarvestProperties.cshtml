@@ -28,150 +28,286 @@
 
 @if (Model != null && Model.Count > 0)
 {
-    foreach (var item in Model)
-    {
-        /*status = ok,
-          baseUri = baseUri,
-          firstHttpMethod = firstHttpMethod,
-          secondHttpMethod = secondHttpMethod,
-          lineRegex = lineRegex,
-          valueRegex = valueRegex,
-          secondTierValueOption = secondTierValueOption
-           * */
-        if (item != null)
+    <div id="propertiesTable">
+        @foreach (var item in Model)
         {
-    <div id="propertiesTable" class="panel panel-default">
-        <div class="panel-body listItem" data-base-uri="@(item.BaseUri)" data-first-http-method="@(item.FirstHttpMethod)"
-                data-second-http-method="@(item.SecondHttpMethod)" data-line-regex="@(item.LineRegex)"
-                data-value-regex="@(item.ValueRegex)" data-second-tier-value-option="@(item.SecondTierValueOption)">
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <p><strong>Base URI:</strong> <span data-name="baseUri">@(item.BaseUri)</span></p>
+            if (item != null)
+            {
+            <div class="panel panel-default">
+                <div class="panel-body listItem">
+                    <div class="row propertyWrapper">
+                        <div class="col-md-10">
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <strong>Base URI:</strong>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <span data-name="BaseUri">@(item.BaseUri)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <strong>1. Method:</strong>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <span data-name="FirstHttpMethod">@(item.FirstHttpMethod)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <strong>Line Regex:</strong>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <span data-name="LineRegex">@(item.LineRegex)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <strong>2. Method:</strong>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <span data-name="SecondHttpMethod">@(item.SecondHttpMethod)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <strong>Value Regex:</strong>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <span data-name="ValueRegex">@(item.ValueRegex)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <strong>Value option:</strong>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <span data-name="SecondTierValueOption">@(item.SecondTierValueOption)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <p><strong>1. Method:</strong> <span data-name="firstHttpMethod">@(item.FirstHttpMethod)</span></p>
+                        <div class="col-md-2">
+                            <div class="btn-group" style="width: 100%;">
+                                <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="editProperty(this)">Edit</button>
+                                <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <p><strong>Line Regex:</strong> <span data-name="lineRegex">@(item.LineRegex)</span></p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>2. Method:</strong> <span data-name="secondHttpMethod">@(item.SecondHttpMethod)</span></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <p><strong>Value Regex:</strong> <span data-name="valueRegex">@(item.ValueRegex)</span></p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Second tier value option:</strong> <span data-name="secondTierValueOption">@(item.SecondTierValueOption)</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="btn-group" style="width: 100%;">
-                        <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="editProperty(this)">Edit</button>
-                        <button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            }
         }
-    }
+    </div>
 }
-<div>
-    <div>
-        <input type="text" class="form-control" placeholder="Name" />
-    </div>
-    <div>
-        <input type="text" class="form-control" placeholder="Value" />
-    </div>
-    <div>
-        <div class="btn-group" style="width: 100%;">
-            <button type="button" style="width: 100%;" class="btn oaiBtn btn-default" onclick="addProperty(this)">Add Property</button>
+<div id="addProperty" class="panel panel-default">
+    <div class="panel-body listItem">
+        <div class="row propertyWrapper">
+            <div class="col-md-10">
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Base URI:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <span data-name="BaseUri"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <strong>1. Method:</strong>
+                            </div>
+                            <div class="col-md-7">
+                                <span data-name="FirstHttpMethod"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Line Regex:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <span data-name="LineRegex"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <strong>2. Method:</strong>
+                            </div>
+                            <div class="col-md-7">
+                                <span data-name="SecondHttpMethod"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Value Regex:</strong>
+                            </div>
+                            <div class="col-md-9">
+                                <span data-name="ValueRegex"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <strong>Value option:</strong>
+                            </div>
+                            <div class="col-md-7">
+                                <span data-name="SecondTierValueOption"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="btn-group" style="width: 100%;">
+                    <button type="button" style="width: 100%;" class="btn oaiBtn btn-default" onclick="addProperty(this)">Add Property</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
 
-    function getOptionsDiv(button) {
-        return $(button).parent('div').parent('div').siblings('div').first();
+    $(document).ready(function () {
+        var emptyObj = { BaseUri: '', FirstHttpMethod: '', SecondHttpMethod: '', LineRegex: '', ValueRegex: '', SecondTierValueOption: '' };
+        setProperties($('#addProperty').children().eq(0), emptyObj, true, true);
+    });
+
+    function getPropertiesDiv(button) {
+        return $(button).closest('div.propertyWrapper');//.parent('div').siblings('div').first();
     }
 
-    function getOptions(rowDiv, isEditMode) {
-        var options = new Object();
-        rowDiv.find('span').each(function () {
+    function getProperties(propertiesDiv, isEditMode, isAddMode) {
+        var properties = new Object();
+        propertiesDiv.find('span').each(function () {
             var current = $(this);
             switch (current.data('name')) {
-                case 'baseUri':
-                    options.baseUri = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
-                case 'firstHttpMethod':
-                    options.firstHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
-                case 'secondHttpMethod':
-                    options.secondHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
-                case 'lineRegex':
-                    options.lineRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
-                case 'valueRegex':
-                    options.valueRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
-                case 'secondTierValueOption':
-                    options.secondTierValueOption = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                case 'BaseUri':
+                    properties.BaseUri = isAddMode ? current.children('input[type="text"]').val() : current.text().trim();
+                    break;
+                case 'FirstHttpMethod':
+                    properties.FirstHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                    break;
+                case 'SecondHttpMethod':
+                    properties.SecondHttpMethod = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                    break;
+                case 'LineRegex':
+                    properties.LineRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
+                    break;
+                case 'ValueRegex':
+                    properties.ValueRegex = isEditMode ? current.children('input[type="text"]').val() : current.text().trim();
+                    break;
+                case 'SecondTierValueOption':
+                    properties.SecondTierValueOption = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                    break;
             }
         });
-        return options;
+        return properties;
     }
 
-    function setOptions(rowDiv, options, isEditMode) {
-        var options = new Object();
-        var txtBox = $('<input>').prop('type', 'text').addClass('form-control');
-        var methodSelect = $('<select>').append('<option value="GET">GET</option>')
-                                        .append('<option value="POST">POST</option>');
-        var optionSelect = $('<select>').append('<option value="ConcatenateURL">ConcatenateURL</option>')
-                                        .append('<option value="Key">Key</option>');
-        rowDiv.find('span').each(function () {
+    function getTextBox() {
+        return $('<input>').prop('type', 'text').addClass('form-control');
+    }
+    function getMethodSelect() {
+        return $('<select>').append('<option value="GET">GET</option>')
+                            .append('<option value="POST">POST</option>')
+         .append('</select>');
+    }
+    function getOptionSelect() {
+        return $('<select>').append('<option value="ConcatenateURL">ConcatenateURL</option>')
+                            .append('<option value="Key">Key</option>')
+         .append('</select>');
+    }
+
+    function createSelect(baseSelect, selectedOpt) {
+        baseSelect.addClass('form-control');
+        baseSelect.children('option[value="' + selectedOpt + '"]').prop('selected', 'selected');
+        return baseSelect
+    }
+
+    function setProperties(propertiesDiv, properties, isEditMode, initAdd) {
+        propertiesDiv.find('span').each(function () {
             var current = $(this);
             switch (current.data('name')) {
-                case 'baseUri':
-                    /*isEditMode ? current.empty().append(txtBox.val(options.baseUri)) :*/ current.text(options.baseUri);
-                case 'firstHttpMethod':
-                    isEditMode ? current.empty().append(
-                        methodSelect.children('option[value="' + options.firstHttpMethod + '"]').prop('selected', 'selected')) :
-                        current.text(options.firstHttpMethod);
-                case 'secondHttpMethod':
-                    isEditMode ? current.empty().append(
-                        methodSelect.children('option[value="' + options.secondHttpMethod + '"]').prop('selected', 'selected')) :
-                        current.text(options.secondHttpMethod);
-                case 'lineRegex':
-                    isEditMode ? current.empty().append(txtBox.val(options.lineRegex)) : current.text(options.lineRegex);
-                case 'valueRegex':
-                    isEditMode ? current.empty().append(txtBox.val(options.valueRegex)) : current.text(options.valueRegex);
-                case 'secondTierValueOption':
-                    isEditMode ? current.empty().append(
-                        optionSelect.children('option[value="' + options.secondTierValueOption + '"]').prop('selected', 'selected')) :
-                        current.text(options.secondTierValueOption);
+                case 'BaseUri':
+                    initAdd ? current.empty().append(getTextBox()) : current.text(properties.BaseUri);
+                    break;
+                case 'FirstHttpMethod':
+                    isEditMode ? current.empty().append(createSelect(getMethodSelect(), properties.FirstHttpMethod)) :
+                        current.text(properties.FirstHttpMethod);
+                    break;
+                case 'SecondHttpMethod':
+                    isEditMode ? current.empty().append(createSelect(getMethodSelect(), properties.SecondHttpMethod)) :
+                        current.text(properties.SecondHttpMethod);
+                    break;
+                case 'LineRegex':
+                    isEditMode ? current.empty().append(getTextBox().val(properties.LineRegex)) : current.text(properties.LineRegex);
+                    break;
+                case 'ValueRegex':
+                    isEditMode ? current.empty().append(getTextBox().val(properties.ValueRegex)) : current.text(properties.ValueRegex);
+                    break;
+                case 'SecondTierValueOption':
+                    isEditMode ? current.empty().append(createSelect(getOptionSelect(), properties.SecondTierValueOption)) :
+                        current.text(properties.SecondTierValueOption);
+                    break;
             }
         });
+
+        return propertiesDiv;
+    }
+
+    function findPropertiesDiv(BaseUri) {
+        var propertiesDiv;
+        $('#propertiesTable').find('span[data-name="BaseUri"]').each(function () {
+            if ($(this).text().trim() == BaseUri) {
+                propertiesDiv = $(this).closest('div.propertyWrapper');//.parent('div').parent('div').parent('div').parent('div').parent('div');
+            }
+        });
+        return propertiesDiv;
     }
 
     function addedProperty(data) {
         switch (data.status) {
             case 'ok':
-                $('#propertiesTable').append(
-                    '<div class="panel-body listItem"><div class="row"><div class="col-md-10"><div class="row"><div class="col-md-8">' +
-                    '<p><strong>Base URI:</strong> <span data-name="baseUri">' + data.baseUri + '</span></p></div><div class="col-md-4">' +
-                    '<p><strong>1. Method:</strong> <span data-name="firstHttpMethod">' + data.firstHttpMethod + '</span></p></div></div><div class="row"><div class="col-md-8">' +
-                    '<p><strong>Line Regex:</strong> <span data-name="lineRegex">' + $('<div/>').text(data.lineRegex).html() + '</span></p></div><div class="col-md-4">' +
-                    '<p><strong>2. Method:</strong> <span data-name="secondHttpMethod">' + data.secondHttpMethod + '</span></p></div></div><div class="row"><div class="col-md-8">' +
-                    '<p><strong>Value Regex:</strong> <span data-name="valueRegex">' + $('<div/>').text(data.valueRegex).html() + '</span></p></div><div class="col-md-4">' +
-                    '<p><strong>Second tier value option:</strong> <span data-name="secondTierValueOption">' + data.secondTierValueOption + '</span></p></div></div></div>' +
-                    '<div class="col-md-2"><div class="btn-group" style="width: 100%;">' +
+                var divClone = $('#addProperty').clone(false);
+                divClone.find('.btn-group').empty().append(
                     '<button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="editProperty(this)">Edit</button>' +
-                    '<button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>' +
-                    '</div></div></div></div>');
+                    '<button type="button" style="width: 50%;" class="btn oaiBtn btn-default" onclick="deleteProperty(this)">Delete</button>');
+                divClone.prop('id', null);
+                $('#propertiesTable').append(setProperties(divClone, data.properties, false, false));
+                $('#addProperty').find('input').val('');
+                $('#addProperty').find('select').children('option:first').prop('selected', 'selected');
                 break;
             case 'failure':
                 break;
@@ -179,79 +315,70 @@
     }
 
     function addProperty(button) {
-        var optionsDiv = getOptionsDiv(button);
-        var options = getOptions(optionsDiv);
+        var propertiesDiv = getPropertiesDiv(button);
+        var properties = getProperties(propertiesDiv, true, true);
         jsonRequest(
-            '@baseLocalUrl/Repository/Properties/AddOrUpdate',
-            JSON.stringify({ options: options })
+            '@baseLocalUrl/Repository/PageFileHarvestProperties/AddOrUpdate',
+            JSON.stringify(properties)
         ).done(addedProperty);
-        }
+    }
 
-        function editedProperty(data) {
-            switch (data.status) {
-                case 'ok':
-                    $('#propertiesTable > tbody > tr').each(function () {
-                        if ($(this).find('td:eq(0)').text().trim() == data.name) {
-                            $(this).children('td:nth-child(2)').html(data.value);
-                            $(this).children('td:nth-child(4)').children('button:contains(Save)').text('Edit');
-                            $(this).children('td:nth-child(4)').children('button:contains(Cancel)').text('Delete');
-                        }
-                    });
-                    break;
-                case 'failure':
+    function editedProperty(data) {
+        switch (data.status) {
+            case 'ok':
+                var propertiesDiv = findPropertiesDiv(data.properties.BaseUri);
+                setProperties(propertiesDiv, data.properties, false);
+                propertiesDiv.find('button:contains(Save)').text('Edit');
+                propertiesDiv.find('button:contains(Cancel)').text('Delete');
+                break;
+            case 'failure':
+                break;
+        }
+    }
+
+    function editProperty(button) {
+        var propertiesDiv = getPropertiesDiv(button);
+        switch ($(button).text()) {
+            case 'Edit':
+                var properties = getProperties(propertiesDiv, false);
+                $(button).text('Save');
+                $(button).siblings().text('Cancel');
+                setProperties(propertiesDiv, properties, true);
+                break;
+            case 'Save':
+                var properties = getProperties(propertiesDiv, true);
+                jsonRequest(
+                    '@baseLocalUrl/Repository/PageFileHarvestProperties/AddOrUpdate',
+                    JSON.stringify(properties)
+                ).done(editedProperty);
                     break;
             }
         }
 
-        function editProperty(button) {
-            var optionsDiv = getOptionsDiv(button);
-            var options = getOptions(optionsDiv);
+        function deletedProperty(data) {
+            var propertiesDiv = findPropertiesDiv(data.BaseUri);
+            propertiesDiv.parent('div').parent('div').remove();
+        }
+
+        function deleteProperty(button) {
+            var propertiesDiv = getPropertiesDiv(button);
             switch ($(button).text()) {
-                case 'Edit':
-                    $(button).text('Save');
-                    $(button).siblings().text('Cancel');
-                    setOptions(optionsDiv, options, true);
-                    break;
-                case 'Save':
+                case 'Delete':
                     jsonRequest(
-                        '@baseLocalUrl/Repository/Properties/AddOrUpdate',
-                        JSON.stringify({ options: options })
-                    ).done(editedProperty);
-                        break;
-                }
-            }
-
-            function deletedProperty(data) {
-                $('#propertiesTable' + data.section + ' > tbody > tr').each(function () {
-                    if ($(this).find('td:eq(0)').text().trim() == data.name) {
-                        $(this).remove();
-                    }
-                });
-            }
-
-            function deleteProperty(button) {
-                switch ($(button).text()) {
-                    case 'Delete':
-                        var row = getButtonRow(button);
-                        jsonRequest(
-                            '@baseLocalUrl/Repository/Properties/Delete',
+                        '@baseLocalUrl/Repository/PageFileHarvestProperties/Delete',
                     JSON.stringify({
-                        name: row.children('td:nth-child(1)').text().trim(),
-                        section: getSectionName(row)
+                        BaseUri: propertiesDiv.find('span[data-name="BaseUri"]').text().trim()
                     })
                 ).done(deletedProperty);
-                        break;
-                    case 'Cancel':
-                        var row = getButtonRow(button);
-                        var currentValue = row.children('td:nth-child(2)').children('input[type="text"]').data('currentValue');
-                        row.children('td:nth-child(2)').html(currentValue);
-                        row.children('td:nth-child(3)').html('');
-                        $(button).siblings().text('Edit');
-                        $(button).text('Delete');
-                        setHeaderSectionText('');
-                        break;
-                }
-            }
+            break;
+        case 'Cancel':
+            var properties = getProperties(propertiesDiv, true);
+            setProperties(propertiesDiv, properties, false);
+            $(button).siblings().text('Edit');
+            $(button).text('Delete');
+            break;
+    }
+}
 
 </script>
 <script src="@Url.Content("~/Scripts/CommonOAI.js")" type="text/javascript"></script>

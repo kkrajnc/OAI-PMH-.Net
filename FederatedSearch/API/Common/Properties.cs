@@ -341,12 +341,21 @@ namespace FederatedSearch.API /* .Common */
         public static void AddOrUpdate(OAISetting setting)
         {
             properties.AddOrUpdate(setting.Key, setting, (key, oldValue) => setting);
+            if (setting.Section == "pfhp")
+            {
+                Properties.UpdatePageFileHarvestProperties();
+            }
         }
 
         public static bool Delete(string name)
         {
             OAISetting setting;
-            return properties.TryRemove(name, out setting);
+            bool isRemoved = properties.TryRemove(name, out setting);
+            if (isRemoved && setting.Section == "pfhp")
+            {
+                Properties.UpdatePageFileHarvestProperties();
+            }
+            return isRemoved;
         }
 
         public static Dictionary<string, string> GetPropertySections()

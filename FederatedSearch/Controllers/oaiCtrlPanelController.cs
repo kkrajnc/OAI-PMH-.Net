@@ -127,10 +127,6 @@ namespace FederatedSearch.Controllers
                 if (OAIOperations.AddOrUpdateSetting(setting))
                 {
                     Properties.AddOrUpdate(setting);
-                    if (section == "pfhp")
-                    {
-                        Properties.UpdatePageFileHarvestProperties();
-                    }
                     return Common.JsonResponse(true);
                 }
 

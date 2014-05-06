@@ -201,47 +201,29 @@ namespace FederatedSearch.Controllers
         [HttpPost]
         public async Task<ActionResult> PageFileHarvestProperties(
             string id,
-            PageFileHarvestProperties options = null,
-            string baseUri = null,
-            string firstHttpMethod = null,
-            string secondHttpMethod = null,
-            string lineRegex = null,
-            string valueRegex = null,
-            string secondTierValueOption = null)
+            PageFileHarvestProperties properties = null,
+            string BaseUri = null)
         {
             var baseLocalUrl = Common.GetBaseUrl(this);
             switch (id.Trim().ToLower())
             {
                 case "addorupdate":
-                    var jsonString = JsonConvert.SerializeObject(new PageFileHarvestProperties()
-                    {
-                        BaseUri = baseUri,
-                        FirstHttpMethod = firstHttpMethod,
-                        SecondHttpMethod = secondHttpMethod,
-                        LineRegex = lineRegex,
-                        ValueRegex = valueRegex,
-                        SecondTierValueOption = secondTierValueOption
-                    });
-
-                    if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, baseUri.Trim(), jsonString, "pfhp"))
+                    var jsonString = JsonConvert.SerializeObject(properties);
+                    if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, properties.BaseUri, jsonString, "pfhp"))
                     {
                         return Json(new
                         {
                             status = ok,
-                            baseUri = baseUri,
-                            firstHttpMethod = firstHttpMethod,
-                            secondHttpMethod = secondHttpMethod,
-                            lineRegex = lineRegex,
-                            valueRegex = valueRegex,
-                            secondTierValueOption = secondTierValueOption
+                            properties = properties
                         });
                     }
                     return Json(new { status = failure });
 
                 case "delete":
-                    if (await OaiApiRestService.DeleteProperty(baseLocalUrl, baseUri))
+                    var tmp = FederatedSearch.API.Properties.pageFileHarvestProperties;
+                    if (await OaiApiRestService.DeleteProperty(baseLocalUrl, BaseUri))
                     {
-                        return Json(new { status = ok, baseUri = baseUri });
+                        return Json(new { status = ok, BaseUri = BaseUri });
                     }
                     return Json(new { status = failure });
             }
