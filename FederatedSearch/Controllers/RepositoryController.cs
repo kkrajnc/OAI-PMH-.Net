@@ -220,7 +220,6 @@ namespace FederatedSearch.Controllers
                     return Json(new { status = failure });
 
                 case "delete":
-                    var tmp = FederatedSearch.API.Properties.pageFileHarvestProperties;
                     if (await OaiApiRestService.DeleteProperty(baseLocalUrl, BaseUri))
                     {
                         return Json(new { status = ok, BaseUri = BaseUri });

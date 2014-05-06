@@ -230,7 +230,6 @@
     <Compile Include="Models\Header.cs" />
     <Compile Include="Models\Set.cs" />
     <Compile Include="Models\OAISetting.cs" />
-    <Compile Include="Models\OAIXmlSerialization.cs" />
     <Compile Include="Models\ObjectMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

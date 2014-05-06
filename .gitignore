@@ -1,0 +1,5 @@
+packages
+*.suo
+FederatedSearch/*.user
+FederatedSearch/bin
+FederatedSearch/obj
