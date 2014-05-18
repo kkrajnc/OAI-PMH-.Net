@@ -1,21 +1,22 @@
-﻿/*     This file is part of OAI-PMH .Net.
+﻿/*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
 
 using FederatedSearch.API.Internal;
 using FederatedSearch.API.MdFormats;
+using FederatedSearch.Models;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -33,17 +34,42 @@ namespace FederatedSearch.API.Common
 {
     public class FileHarvester
     {
-        public static string GetOrCreateFileName(HttpWebResponse response, bool keepFileName, string defaultValue)
+        public static string GetOrCreateFileName(HttpWebResponse response, FileProperties fileProperties)
         {
+            if (response == null)
+            {
+                return string.Empty;
+            }
+
             string fileName = null;
-            if (keepFileName && response.Headers.AllKeys.Contains("Content-Disposition"))
+            if (response.Headers.AllKeys.Contains("Content-Disposition"))
             {
                 string contentDisposition = response.Headers.GetValues("Content-Disposition").FirstOrDefault();
                 fileName = string.IsNullOrEmpty(contentDisposition) ?
                             null : new ContentDisposition(contentDisposition).FileName;
             }
+            
+            if (string.IsNullOrEmpty(fileName) && response.ResponseUri != null)
+            {
+                fileName = Path.GetFileName(response.ResponseUri.LocalPath);
+            }
 
-            return string.IsNullOrEmpty(fileName) ? defaultValue : fileName;
+            if (string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(fileProperties.Name))
+            {
+                fileName = fileProperties.Name + fileProperties.Extension;
+            }
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                fileName = fileProperties.AlternateName + fileProperties.Extension;
+            }
+
+            if (!fileName.Contains('.'))
+            {
+                fileName += fileProperties.Extension;
+            }
+
+            return fileName;
         }
 
         public static string CleanFileName(string fileName)
@@ -56,17 +82,12 @@ namespace FederatedSearch.API.Common
             return new Regex("[^a-zA-Z0-9_.-]+", RegexOptions.Compiled).Replace(fileName, "");
         }
 
-        public static string CreateUniqueFileName(string basePath, string fileName, string fileExtension)
+        public static string CreateUniqueFileName(string basePath, string fileName)
         {
             string filePath = string.Empty;
             /* create file path */
             filePath = basePath +
                        (string.IsNullOrEmpty(fileName) ? CleanFileName(Helper.CreateGuid()) : CleanFileName(fileName));
-
-            if (!filePath.EndsWith(fileExtension, true, System.Globalization.CultureInfo.InvariantCulture))
-            {
-                filePath += fileExtension;
-            }
 
             /* create unique file name */
             if (!Properties.overwriteHarvestedFiles && File.Exists(filePath))
@@ -120,8 +141,8 @@ namespace FederatedSearch.API.Common
                 return false;
             }
 
-            if (Properties.limitHarvestedFileTypes && 
-                Properties.allowedMimeTypesList.Contains(GetResponseContentType(response)))
+            if (Properties.limitHarvestedFileTypes ?
+                !Properties.allowedMimeTypesList.Contains(GetResponseContentType(response)) : false)
             {
                 return false;
             }
@@ -148,6 +169,11 @@ namespace FederatedSearch.API.Common
             {
                 var request = (HttpWebRequest)WebRequest.Create(new Uri(uri));
                 request.Method = "GET";
+                request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0";
+                request.Referer = uri;
+                request.KeepAlive = true;
                 request.CookieContainer = cookies;
                 return (HttpWebResponse)request.GetResponse();
             }
@@ -171,7 +197,7 @@ namespace FederatedSearch.API.Common
                 request.KeepAlive = true;
                 request.CookieContainer = cookies;
 
-                /* write key to the stream */
+                /* write content to the stream */
                 using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                 {
                     streamWriter.Write(content);
@@ -185,8 +211,13 @@ namespace FederatedSearch.API.Common
             }
         }
 
-        public static string FindInPage(HttpWebResponse response, string lineRegex, string valueRegex)
+        public static IEnumerable<string> FindInPage(HttpWebResponse response, string lineRegex, string valueRegex)
         {
+            if (response == null || string.IsNullOrEmpty(lineRegex) || string.IsNullOrEmpty(valueRegex))
+            {
+                yield break;
+            }
+
             bool skipLineCheck = string.IsNullOrEmpty(lineRegex);
             string line = string.Empty;
             using (var responseStream = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
@@ -195,12 +226,10 @@ namespace FederatedSearch.API.Common
                 {
                     if (skipLineCheck || Regex.IsMatch(line, lineRegex, RegexOptions.Compiled))
                     {
-                        return new Regex(valueRegex, RegexOptions.Compiled).Match(line).Value;
+                        yield return new Regex(valueRegex, RegexOptions.Compiled).Match(line).Value;
                     }
                 }
             }
-
-            return string.Empty;
         }
 
         public static IEnumerable<FileProperties> GetAllSources(RecordQueryResult record, string sourceProperty)
@@ -214,7 +243,8 @@ namespace FederatedSearch.API.Common
             var sourcePropertyValue = record.Metadata.GetType().GetProperty(sourceProperty).GetValue(record.Metadata, null).ToString();
             foreach (var sourceValue in MlEncode.ListElementValues(sourcePropertyValue).ToList())
             {
-                if (!string.IsNullOrEmpty(sourceValue.Trim()))
+                var value = sourceValue; /* new variable because we cannot assign to a foreach variable */
+                if (!string.IsNullOrEmpty(value.Trim()))
                 {
                     tempProps = new FileProperties();
 
@@ -226,32 +256,41 @@ namespace FederatedSearch.API.Common
                         {
                             tempProps.Extension = GetExtension(format.Value);
                         }
-                        tempProps.AbsoluteUri = sourceValue.Trim();
+                        else
+                        {
+                            tempProps.Extension = string.Empty;
+                        }
+                        tempProps.AbsoluteUri = value.Trim();
                     }
-                    else if (sourceValue.StartsWith("application"))
+                    else if (value.StartsWith("application"))
                     {
-                        var tmpSplit = sourceValue.Split('\n');
-                        if (tmpSplit.Length == 2 &&
-                            !string.IsNullOrEmpty(tmpSplit[0].Trim()) &&
-                            !string.IsNullOrEmpty(tmpSplit[1].Trim()))
+                        var tmpSplit = value.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (tmpSplit.Length == 2)
                         {
                             tempProps.Extension = GetExtension(tmpSplit[0].Trim());
                             tempProps.AbsoluteUri = tmpSplit[1].Trim();
+                            value = tmpSplit[1].Trim();
                         }
                     }
 
                     /* extract file name */
-                    string fileName = tempProps.AbsoluteUri.Substring(tempProps.AbsoluteUri.LastIndexOf('/'));
+                    string fileName = tempProps.AbsoluteUri.Substring(tempProps.AbsoluteUri.LastIndexOf('/') + 1);
                     int questionmarkIndex = fileName.IndexOf('?');
                     if (questionmarkIndex > -1)
                     {
-                        fileName = fileName.Substring(0, questionmarkIndex);
+                        fileName = string.Empty;
                     }
                     tempProps.Name = fileName;
 
+                    tempProps.AlternateName = record.Header.OAI_Identifier;
+
                     /* check if this is an URI */
                     Uri sourceUri;
-                    if (Uri.TryCreate(sourceValue, UriKind.Absolute, out sourceUri))
+                    if (Uri.TryCreate(value, UriKind.Absolute, out sourceUri) &&
+                        (sourceUri.Scheme == Uri.UriSchemeHttp ||
+                         sourceUri.Scheme == Uri.UriSchemeHttps ||
+                         sourceUri.Scheme == Uri.UriSchemeFtp ||
+                         sourceUri.Scheme == Uri.UriSchemeFile))
                     {
                         tempProps.Uri = sourceUri;
                         yield return tempProps;
@@ -260,79 +299,118 @@ namespace FederatedSearch.API.Common
             }
         }
 
-        public static string TwoTierRequestDownload(
-            string baseUrl,
-            RecordQueryResult record,
-            string fileURI,
-            string basePath,
-            bool keepFileName,
-            string fileExtension,
-            string firstTierMethod,
-            string secondTierMethod,
-            string matchRegex,
-            string valueRegex,
-            string foundOption)
+        public static string PageOnly(FileProperties fileProperties, string basePath)
         {
-            if (record == null || record.Metadata == null || string.IsNullOrEmpty(record.Metadata.Format))
+            if (fileProperties == null || string.IsNullOrEmpty(basePath))
             {
                 return null;
             }
 
             try
             {
-                basePath = basePath.Trim();
-                if (string.IsNullOrEmpty(fileURI) || string.IsNullOrEmpty(basePath))
+                PageFileHarvestProperties properties;
+                if (Properties.pageFileHarvestProperties.TryGetValue(fileProperties.Uri.GetLeftPart(UriPartial.Authority), out properties))
+                {
+                    basePath = basePath.Trim();
+
+                    CookieContainer cookies = new CookieContainer();
+                    string returnData = string.Empty;
+
+                    /* first tier */
+                    /* lets get page and cookies */
+                    var response = properties.FirstHttpMethod.ToLower() == "get" ?
+                        GetResponse(fileProperties.AbsoluteUri, cookies) : PostResponse(fileProperties.AbsoluteUri, "", cookies);
+
+                    if (response != null)
+                    {
+                        /* update because of possible redirection */
+                        fileProperties.AbsoluteUri = response.ResponseUri.ToString();
+                        fileProperties.Uri = response.ResponseUri;
+
+                        string filePaths = string.Empty;
+
+                        foreach (var foundValue in FindInPage(response, properties.LineRegex, properties.ValueRegex))
+                        {
+                            /* second tier */
+                            switch (properties.SecondTierValueOption.ToLower().Trim())
+                            {
+                                case "key":
+                                    response = properties.SecondHttpMethod.ToLower() == "get" ?
+                                        GetResponse(fileProperties.AbsoluteUri, cookies) :
+                                        PostResponse(fileProperties.AbsoluteUri, "key=" + foundValue, cookies);
+                                    break;
+
+                                case "concatenateurl":
+                                    string completeUrl;
+                                    string authority = fileProperties.Uri.GetLeftPart(UriPartial.Authority);
+                                    if (authority.LastIndexOf('/') == authority.Length - 1 && foundValue.IndexOf('/') == 0)
+                                    {
+                                        completeUrl = authority + foundValue.Substring(1);
+                                    }
+                                    else
+                                    {
+                                        completeUrl = authority + foundValue;
+                                    }
+
+                                    completeUrl = HttpUtility.UrlDecode(completeUrl);
+                                    completeUrl = HttpUtility.HtmlDecode(completeUrl);
+
+                                    response = properties.SecondHttpMethod.ToLower() == "get" ?
+                                        GetResponse(completeUrl, cookies) : PostResponse(completeUrl, "", cookies);
+                                    break;
+                            }
+
+                            string fileName = GetOrCreateFileName(response, fileProperties);
+                            string filePath = CreateUniqueFileName(basePath, fileName);
+
+                            /* try to download file */
+                            if(DownloadFile(filePath, response))
+                            {
+                                filePaths += filePath + "][";
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(filePaths))
+                        {
+                            return filePaths;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                /* for debugging purpose only */
+                string msg = e.Message;
+            }
+            return null;
+        }
+
+        public static string FromPageOnly(
+            RecordQueryResult record,
+            string basePath,
+            string source)
+        {
+            try
+            {
+                if (record == null || string.IsNullOrEmpty(basePath))
                 {
                     return null;
                 }
 
-                CookieContainer cookies = new CookieContainer();
-                string returnData = string.Empty;
-
-                /* first tier */
-                /* lets get cookies and page */
-                var response = firstTierMethod.ToLower() == "get" ? GetResponse(fileURI, cookies) : PostResponse(fileURI, "", cookies);
-
-                /* get key */
-                string foundValue = FindInPage(response, matchRegex, valueRegex);
-
-                /* proceed only if we got the key */
-                if (!string.IsNullOrEmpty(foundValue))
+                string files = string.Empty;
+                foreach (var sourceItem in GetAllSources(record, source))
                 {
-                    /* second tier */
-                    switch (foundOption.ToLower().Trim())
+                    string filePath = PageOnly(sourceItem, basePath);
+
+                    if (!string.IsNullOrEmpty(filePath))
                     {
-                        case "key":
-                            foundValue = "key=" + foundValue;
-                            response = secondTierMethod.ToLower() == "get" ? GetResponse(fileURI, cookies) : PostResponse(fileURI, foundValue, cookies); //(HttpWebResponse)request.GetResponse();
-                            break;
-
-                        case "concatenateurl":
-                            string completeUrl;
-                            string authority = new Uri(baseUrl).GetLeftPart(UriPartial.Authority);
-                            if (authority.LastIndexOf('/') == authority.Length - 1 && foundValue.IndexOf('/') == 0)
-                            {
-                                completeUrl = authority + foundValue.Substring(1);
-                            }
-                            else
-                            {
-                                completeUrl = authority + foundValue;
-                            }
-
-                            completeUrl = HttpUtility.UrlDecode(completeUrl);
-                            completeUrl = HttpUtility.HtmlDecode(completeUrl);
-
-                            response = secondTierMethod.ToLower() == "get" ? GetResponse(completeUrl, cookies) : PostResponse(completeUrl, "", cookies); //(HttpWebResponse)request.GetResponse();
-                            break;
+                        files += filePath;
                     }
+                }
 
-                    string fileName = GetOrCreateFileName(response, keepFileName, record.Header.OAI_Identifier);
-                    string filePath = CreateUniqueFileName(basePath, fileName, fileExtension);
-
-                    /* try to download file */
-                    var succeeded = DownloadFile(filePath, response);
-
-                    return succeeded ? filePath : null;
+                if (!string.IsNullOrEmpty(files))
+                {
+                    return files.Substring(0, files.Length - 2);
                 }
             }
             catch (Exception e)
@@ -344,31 +422,22 @@ namespace FederatedSearch.API.Common
         }
 
         public static string FromSourceTag(
-            string baseUrl,
             RecordQueryResult record,
-            string firstElement,
-            string secondElement,
-            string basePath,
-            bool keepFileName,
-            string fileExtension,
-            string firstTierMethod,
-            string secondTierMethod,
-            string matchRegex,
-            string valueRegex,
-            string foundOption)
+            OAIDataProvider dataProvider,
+            string basePath)
         {
-            basePath = basePath.Trim();
-            if (string.IsNullOrEmpty(basePath))
-            {
-                return null;
-            }
-
             try
             {
-                string files = string.Empty;
-                foreach (var sourceItem in GetAllSources(record, "Source"))
+                if (record == null || dataProvider == null || string.IsNullOrEmpty(basePath))
                 {
-                    string filePath = CreateUniqueFileName(basePath, sourceItem.Name, sourceItem.Extension);
+                    return null;
+                }
+
+                string files = string.Empty;
+                foreach (var sourceItem in GetAllSources(record, dataProvider.FirstSource))
+                {
+                    var fileName = string.IsNullOrEmpty(sourceItem.Name) ? sourceItem.AlternateName : sourceItem.Name;
+                    string filePath = CreateUniqueFileName(basePath, fileName + sourceItem.Extension);
 
                     if (DownloadFile(filePath, sourceItem.AbsoluteUri))
                     {
@@ -377,26 +446,11 @@ namespace FederatedSearch.API.Common
                 }
                 if (!string.IsNullOrEmpty(files))
                 {
-                    return files;
+                    return files.Substring(0, files.Length - 2);
                 }
 
-
-                var identifier = MlEncode.Element("identifier", record.Metadata.Identifier).FirstOrDefault();
-                if (identifier != null && !string.IsNullOrEmpty(identifier.Value))
-                {
-                    return TwoTierRequestDownload(
-                        baseUrl,
-                        record,
-                        identifier.Value.Trim(),
-                        basePath,
-                        keepFileName,
-                        fileExtension,
-                        "GET",
-                        "GET",
-                        @"<li><a href=""/viewdoc/download?",
-                        @"(?<=\bhref="")[^""]*",
-                        "ConcatenateUrl");
-                }
+                return FromPageOnly(record, basePath, 
+                    string.IsNullOrEmpty(dataProvider.SecondSource) ? dataProvider.FirstSource : dataProvider.SecondSource);
             }
             catch (Exception e)
             {
@@ -406,100 +460,39 @@ namespace FederatedSearch.API.Common
             return null;
         }
 
-        public static void GetFile(string baseURL, RecordQueryResult record)
+        public static void GetFile(OAIDataProvider dataProvider, RecordQueryResult record)
         {
-            if (string.IsNullOrEmpty(baseURL) || record == null)
+            if (dataProvider == null || record == null)
             {
                 return;
             }
 
             string basePath = Directory.GetCurrentDirectory() + "\\HarvestedFiles\\";
-            var fileUri = new Uri(baseURL);
-
-            switch (fileUri.GetLeftPart(UriPartial.Authority))
+            basePath += new Uri(dataProvider.BaseURL).Host + "\\";
+            if (Properties.overwriteHarvestedFiles ? true : string.IsNullOrEmpty(record.Header.FilePath))
             {
-                case "http://dkum.uni-mb.si":
-                    /* save files to dedicated folder */
-                    basePath += new Uri(baseURL).Host + "\\";
-                    if (Properties.overwriteHarvestedFiles ? true : string.IsNullOrEmpty(record.Header.FilePath) &&
-                        FormatList.IsInFormat(record.Metadata.MdFormat, Enums.MetadataFormats.DublinCore) &&
-                        !string.IsNullOrEmpty(record.Metadata.Format))
-                    {
-                        if (!Directory.Exists(basePath))
-                        {
-                            Directory.CreateDirectory(basePath);
-                        }
-                        var format = MlEncode.Element("format", record.Metadata.Format).FirstOrDefault();
-                        if (format != null && !string.IsNullOrEmpty(format.Value))
-                        {
-                            string[] formatVal = format.Value.Split('\n');
-                            if (formatVal.Length == 2)
-                            {
-                                string fileExtension = GetExtension(formatVal[0].Trim());
-                                string fileUrl = formatVal[1].Trim();
-                                record.Header.FilePath = TwoTierRequestDownload(
-                                    baseURL, record, fileUrl, basePath, true, fileExtension,
-                                    "GET", "POST",
-                                    @"<input type=""hidden"" name=""key"" value=""[a-zA-Z0-9]+"" />",
-                                    @"(?<=\bvalue="")[^""]*", "key");
-                            }
-                        }
-                    }
-                    break;
+                if (!Directory.Exists(basePath))
+                {
+                    Directory.CreateDirectory(basePath);
+                }
 
-                case "http://citeseerx.ist.psu.edu":
-                    basePath += new Uri(baseURL).Host + "\\";
-                    if (Properties.overwriteHarvestedFiles ? true : string.IsNullOrEmpty(record.Header.FilePath) &&
-                        FormatList.IsInFormat(record.Metadata.MdFormat, Enums.MetadataFormats.DublinCore) &&
-                        !string.IsNullOrEmpty(record.Metadata.Format))
-                    {
-                        if (!Directory.Exists(basePath))
-                        {
-                            Directory.CreateDirectory(basePath);
-                        }
-                        var source = MlEncode.Element("source", record.Metadata.Source).FirstOrDefault();
-                        var format = MlEncode.Element("format", record.Metadata.Format).FirstOrDefault();
-                        if (source != null && !string.IsNullOrEmpty(source.Value) &&
-                            format != null && !string.IsNullOrEmpty(format.Value))
-                        {
-                            record.Header.FilePath = "";//FromSourceTag(baseURL, record, basePath, true, GetExtension(format.Value.Trim()));
-                        }
-                    }
-                    break;
+                string filePath = null;
+                switch (dataProvider.Function)
+                {
+                    case "FromPageOnly":
+                        filePath = FromPageOnly(record, basePath, dataProvider.FirstSource);
+                        break;
+                    case "FromSourceTag":
+                        filePath = FromSourceTag(record, dataProvider, basePath);
+                        break;
+                    default:
+                        break;
+                }
 
-                default:
-                    if (baseURL == Properties.baseURL)
-                    {
-                        /* save files to dedicated folder */
-                        basePath += "localhostApi\\";
-                        if (string.IsNullOrEmpty(record.Header.FilePath) &&
-                            FormatList.IsInFormat(record.Metadata.MdFormat, Enums.MetadataFormats.DublinCore) &&
-                            !string.IsNullOrEmpty(record.Metadata.Format))
-                        {
-                            if (!Directory.Exists(basePath))
-                            {
-                                Directory.CreateDirectory(basePath);
-                            }
-
-                            /* try DKUM path */
-                            var format = MlEncode.Element("format", record.Metadata.Format).FirstOrDefault();
-                            if (format != null && !string.IsNullOrEmpty(format.Value))
-                            {
-                                string[] formatVal = format.Value.Split(' ');
-                                if (formatVal.Length == 2)
-                                {
-                                    string fileExtension = GetExtension(formatVal[0].Trim());
-                                    string fileUrl = formatVal[1].Trim();
-                                    record.Header.FilePath = TwoTierRequestDownload(
-                                        baseURL, record, fileUrl, basePath, true, fileExtension,
-                                        "GET", "POST",
-                                        @"<input type=""hidden"" name=""key"" value=""[a-zA-Z0-9]+"" />",
-                                        @"(?<=\bvalue="")[^""]*", "key");
-                                }
-                            }
-                        }
-                    }
-                    break;
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    record.Header.FilePath = filePath;
+                }
             }
         }
 
@@ -509,6 +502,7 @@ namespace FederatedSearch.API.Common
             public Uri Uri { get; set; }
             public string Name { get; set; }
             public string Extension { get; set; }
+            public string AlternateName { get; set; }
         }
     }
 }

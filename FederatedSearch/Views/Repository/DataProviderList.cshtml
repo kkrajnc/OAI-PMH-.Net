@@ -1,81 +1,364 @@
-﻿@*     This file is part of OAI-PMH .Net.
+﻿@*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
-@model IEnumerable<FederatedSearch.Models.OAIDataProvider>
+@model List<FederatedSearch.Models.OAIDataProvider>
 @using FederatedSearch.Controllers
 @{
-    ViewBag.Title = "DataProviderList";
+    ViewBag.Title = "Data Provider List";
+    string baseLocalUrl = Common.GetBaseUrl(Html.ViewContext.RequestContext.HttpContext);
 }
 
 <h2>Data Provider List</h2>
 <hr style="margin-top: 0px; padding-top: 0px;" />
 
-@if (Model == null || Model.Count() < 1)
+@if (Model == null || Model.Count < 1)
 {
-    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", new { id = "AddRepository" })</p>
+    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", new { id = "Add" })</p>
     <br />
 }
 else
 {
-    <p>@Html.ActionLink("Add", "DataProvider", new { id = "AddRepository" })</p>
+    <p>@Html.ActionLink("Add", "DataProvider", new { id = "Add" })</p>
     <br />
-}
-
-@foreach (var item in Model)
-{
-    <div class="row-fluid" style="background-color: ButtonFace;">
-        <div class="panel panel-default">
-            <div class="panel-body listItem">
-                <div class="col-md-12">
-                    <p style="font-size: 1.5em">@Html.DisplayFor(modelItem => item.RepositoryName)</p>
-                    <div class="row">
-                        <div class="col-md-2"><strong>Base URL: </strong></div>
-                        <div class="col-md-10">@Html.DisplayFor(modelItem => item.BaseURL)</div>
+    
+    <div class="panel-group" id="accordion">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var item = Model[i];
+            
+            <div style="float: left; padding: 0px 5px 10px 5px; width: 50%;">
+                <div class="panel panel-default">
+                    <div class="panel-heading" onclick="toggleCollapse('#collapse@(item.OAIDataProviderId)')">
+                        <h4 class="panel-title">
+                            @(item.RepositoryName)
+                        </h4>
                     </div>
-                    <div class="row">
-                        <div class="col-md-2"><strong>Granularity: </strong></div>
-                        <div class="col-md-4">@(string.IsNullOrEmpty(item.Granularity) ? "/" : item.Granularity)</div>
-                        <div class="col-md-2"><strong>Protocol: </strong></div>
-                        <div class="col-md-1">@(string.IsNullOrEmpty(item.ProtocolVersion) ? "/" : ("v" + item.ProtocolVersion))</div>
-                        <div class="col-md-2"><strong>Deleted Records: </strong></div>
-                        <div class="col-md-1">@(string.IsNullOrEmpty(item.DeletedRecord) ? "/" : item.DeletedRecord)</div>
+                    <div id="collapse@(item.OAIDataProviderId)" class="panel-body panel-collapse collapse">
+                        <span style="display: none;" data-name="OAIDataProviderId" data-type="hidden">
+                            @(item.OAIDataProviderId)
+                        </span>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Base URL: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="BaseURL">
+                                    @(item.BaseURL)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Granularity: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="Granularity">
+                                    @(string.IsNullOrEmpty(item.Granularity) ? "/" : item.Granularity)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Protocol: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="ProtocolVersion">
+                                    @(string.IsNullOrEmpty(item.ProtocolVersion) ? "/" : item.ProtocolVersion)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Deleted Records: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="DeletedRecord">
+                                    @(string.IsNullOrEmpty(item.DeletedRecord) ? "/" : item.DeletedRecord)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Earliest Datestamp: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="EarliestDatestamp">
+                                    @(item.EarliestDatestamp.HasValue ? item.EarliestDatestamp.Value.ToString("dd.MM.yyyy HH:mm:ss") : "/")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Last Harvesting: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="LastHarvesting">
+                                    @(item.LastHarvesting.HasValue ? item.LastHarvesting.Value.ToString("dd.MM.yyyy HH:mm:ss") : "/")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Admin Emails: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="AdminEmail">
+                                    @Html.GetStackedList(item.AdminEmail)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Compressions: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="Compression">
+                                    @Html.GetStackedList(item.Compression)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Function: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="Function" data-type="select" data-options="functions" data-editable="true">
+                                    @(string.IsNullOrEmpty(item.Function) ? "/" : item.Function)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>First Source: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="FirstSource" data-type="select" data-options="sources" data-editable="true">
+                                    @(string.IsNullOrEmpty(item.FirstSource) ? "/" : item.FirstSource)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><strong>Second Source: </strong></div>
+                            <div class="col-md-8">
+                                <span data-name="SecondSource" data-type="select" data-options="sources" data-editable="true">
+                                    @(string.IsNullOrEmpty(item.SecondSource) ? "/" : item.SecondSource)
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-2"><strong>Earliest Datestamp: </strong></div>
-                        <div class="col-md-4">@Html.DisplayFor(modelItem => item.EarliestDatestamp)</div>
-                        <div class="col-md-2"><strong>Last Harvesting: </strong></div>
-                        <div class="col-md-4">@(item.LastHarvesting.HasValue ? Html.DisplayFor(modelItem => item.LastHarvesting) : Html.Raw("/"))</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-2"><strong>Admin Emails: </strong></div>
-                        <div class="col-md-4">@Html.GetStackedList(item.AdminEmail)</div>
-                        <div class="col-md-2"><strong>Compressions: </strong></div>
-                        <div class="col-md-4">@Html.GetStackedList(item.Compression)</div>
+                    <div class="panel-footer btn-group" style="width: 100%;">
+                        <button type="button" style="width: 33.3333334%;" class="btn oaiBtn btn-default" onclick="editDataProvider(this, '#collapse@(item.OAIDataProviderId)')">Edit</button>
+                        <button type="button" style="width: 33.3333334%;" class="btn oaiBtn btn-default" onclick="deleteDataProvider(this, '#collapse@(item.OAIDataProviderId)')">Delete</button>
+                        <button type="button" style="width: 33.3333334%;" class="btn oaiBtn btn-default" onclick="reIdentifyDataProvider(this, '@(item.OAIDataProviderId)')">ReIdentify</button>
                     </div>
                 </div>
-                @*<div class="col-md-1">
-                    <br />
-                    <div class="row"><div class="col-md-12">@Html.ActionLink("Edit", "Edit", new { id = item.OAIDataProviderId })</div></div>
-                    <br />
-                    <div class="row"><div class="col-md-12">@Html.ActionLink("Details", "Details", new { id = item.OAIDataProviderId })</div></div>
-                    <br />
-                    <div class="row"><div class="col-md-12">@Html.ActionLink("Delete", "Delete", new { id = item.OAIDataProviderId })</div></div>
-                </div>*@
             </div>
-        </div>
+        }
     </div>
+    <div class="clearfix"></div>
+    
 }
 
+<script type="text/javascript">
+
+    function getData(panel, isEditMode) {
+        var properties = new Object();
+        panel.find('span').each(function () {
+            var current = $(this);
+            switch (current.data('type')) {
+                case 'select':
+                    var name = current.data('name');
+                    if (name && name != '') {
+                        properties[name] = isEditMode ? current.children('select').find(":selected").val() : current.text().trim();
+                    }
+                    break;
+                case 'hidden':
+                default:
+                    var name = current.data('name');
+                    if (name && name != '') {
+                        properties[name] = current.text().trim();
+                    }
+                    break;
+            }
+        });
+        return properties;
+    }
+
+    var commonSelects = {
+        'functions': '<select><option value="">None</option>' +
+                             '<option value="FromPageOnly">FromPageOnly</option>' +
+                             '<option value="FromSourceTag">FromSourceTag</option></select>',
+        'sources': '<select><option value="">None</option>' +
+                           '<option value="Title">Title</option>' +
+                           '<option value="Creator">Creator</option>' +
+                           '<option value="Subject">Subject</option>' +
+                           '<option value="Description">Description</option>' +
+                           '<option value="Publisher">Publisher</option>' +
+                           '<option value="Contributor">Contributor</option>' +
+                           '<option value="Date">Date</option>' +
+                           '<option value="Type">Type</option>' +
+                           '<option value="Format">Format</option>' +
+                           '<option value="Identifier">Identifier</option>' +
+                           '<option value="Source">Source</option>' +
+                           '<option value="Language">Language</option>' +
+                           '<option value="Relation">Relation</option>' +
+                           '<option value="Coverage">Coverage</option>' +
+                           '<option value="Rights">Rights</option></select>'
+    };
+
+    function createSelect(baseSelect, selectedOpt) {
+        var select = $(baseSelect);
+        select.addClass('form-control').addClass('input-sm');
+        select.children('option[value="' + selectedOpt + '"]').prop('selected', 'selected');
+        return select
+    }
+
+    function setData(panel, properties, mode) {
+        panel.find('span').each(function () {
+            var current = $(this);
+            switch (current.data('type')) {
+                case 'select':
+                    var name = current.data('name');
+                    if (name && name != '') {
+                        var val;
+                        if (mode == 'edit' && current.data('editable')) {
+                            var options = current.data('options');
+                            if (options && options != '') {
+                                current.empty().append(createSelect(commonSelects[options], properties[name]));
+                                current.data('prevValue', properties[name]);
+                            }
+                            break;
+                        }
+                        else if (mode == 'prev') {
+                            var prevValue = current.data('prevValue');
+                            if (prevValue) {
+                                val = prevValue;
+                            }
+                            else {
+                                val = properties[name];
+                            }
+                        }
+                        else {
+                            val = properties[name];
+                        }
+
+                        if (!val || val == '') {
+                            val = '/';
+                        }
+
+                        current.text(val);
+                    }
+                    break;
+                case 'hidden':
+                default:
+                    var name = current.data('name');
+                    if (name && name != '') {
+                        var val = properties[name];
+                        if (!val) {
+                            val = '/';
+                        }
+                        else if (/^\/Date/.test(val)) {
+                            val = new Date(parseInt(val.substr(6))).toString('dd.MM.yyyy HH:mm:ss');
+                        }
+                        current.text(val);
+                    }
+                    break;
+            }
+        });
+    }
+
+    function editedDataProvider(data) {
+        switch (data.status) {
+            case 'ok':
+                var panel = $('#collapse' + data.dataProvider.OAIDataProviderId).parent('div');
+                setData(panel, data.dataProvider);
+                panel.find('button:contains(Save)').text('Edit');
+                panel.find('button:contains(Cancel)').text('Delete');
+                panel.find('button:contains(ReIdentify)').removeProp('disabled');
+                break;
+            case 'failure':
+                break;
+        }
+    }
+
+    function editDataProvider(buttonElement, panelId) {
+        var button = $(buttonElement);
+        var panel = $(panelId);
+        if (panel.hasClass('collapse')) {
+            toggleCollapse(panelId);
+        }
+
+        switch (button.text()) {
+            case 'Edit':
+                data = getData(panel, false);
+                button.text('Save');
+                button.siblings('button:contains(Delete)').text('Cancel');
+                button.siblings('button:contains(ReIdentify)').prop('disabled', 'disabled');
+                setData(panel, data, 'edit');
+                break;
+            case 'Save':
+                var dataProvider = getData(panel, true);
+                jsonRequest(
+                    '@baseLocalUrl/Repository/DataProvider/AddOrUpdate',
+                    JSON.stringify(dataProvider)
+                ).done(editedDataProvider);
+                break;
+        }
+    }
+
+    function deletedDataProvider(data) {
+        switch (data.status) {
+            case 'ok':
+                $('#collapse' + data.OAIDataProviderId).parent('div').parent('div').remove();
+                break;
+            case 'failure':
+                break;
+        }
+    }
+
+    function deleteDataProvider(buttonElement, panelId) {
+        var button = $(buttonElement);
+        var panel = $(panelId);
+        switch (button.text()) {
+            case 'Delete':
+                jsonRequest(
+                    '@baseLocalUrl/Repository/DataProvider/Delete',
+                    JSON.stringify({
+                        OAIDataProviderId: panel.find('span[data-name="OAIDataProviderId"]').text().trim()
+                    })
+                ).done(deletedDataProvider);
+                break;
+            case 'Cancel':
+                var data = getData(panel, true);
+                setData(panel, data, 'prev');
+                button.siblings('button:contains(Save)').text('Edit');
+                button.text('Delete');
+                button.siblings('button:contains(ReIdentify)').removeProp('disabled');
+                break;
+        }
+    }
+
+    function reIdentifiedDataProvider(data) {
+        switch (data.status) {
+            case 'ok':
+                var panel = $('#collapse' + data.dataProvider.OAIDataProviderId).parent('div');
+                setData(panel, data.dataProvider);
+                panel.find('button:contains(Edit)').removeProp('disabled');
+                panel.find('button:contains(Delete)').removeProp('disabled');
+                break;
+            case 'failure':
+                break;
+        }
+    }
+
+    function reIdentifyDataProvider(buttonElement, id) {
+        var button = $(buttonElement);
+        button.siblings('button:contains(Edit)').prop('disabled');
+        button.siblings('button:contains(Delete)').prop('disabled');
+
+        jsonRequest(
+            '@baseLocalUrl/Repository/DataProvider/ReIdentify',
+            JSON.stringify({
+                OAIDataProviderId: id
+            })
+        ).done(reIdentifiedDataProvider);
+    }
+
+</script>
+
+<script src="@Url.Content("~/Scripts/CommonOAI.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/date.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>

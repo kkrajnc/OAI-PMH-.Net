@@ -1,17 +1,17 @@
-﻿@*     This file is part of OAI-PMH .Net.
+﻿@*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
 <!DOCTYPE html>
@@ -42,11 +42,10 @@
                     <ul class="nav navbar-nav">
                         @Html.MenuLink("Test", "Index", "Home")
                         @Html.MenuLink("Metadata", "Metadata", "Home")
-                        @*@Html.MenuLink("Search", "Search", "Home")*@
 
                         @Html.MenuLink("Repository ", "Index", "Repository", null, new MvcHtmlString[]{
                                 Html.MenuLink("Properties", "Properties", "Repository"),
-                                Html.MenuLink("Fileharvest Properties", "PageFileHarvestProperties", "Repository"),
+                                Html.MenuLink("Page File Harvest Properties", "PageFileHarvestProperties", "Repository"),
                                 new MvcHtmlString("<li class=\"divider\"></li>"),
                                 Html.MenuLink("Data Providers", "DataProvider", "Repository", new { id = "List" }),
                                 new MvcHtmlString("<li class=\"divider\"></li>"),
@@ -54,7 +53,6 @@
                                 Html.MenuLink("Harvest record", "Harvest", "Repository", new { id = "Record" }),
                                 new MvcHtmlString("<li class=\"divider\"></li>"),
                                 Html.MenuLink("Delete Metadata", "DeleteMetadata", "Repository")
-                                /*new MvcHtmlString("<li class=\"divider\"></li>")*/
                             })
                     </ul>
                     <div class="navbar-form navbar-right form-group">

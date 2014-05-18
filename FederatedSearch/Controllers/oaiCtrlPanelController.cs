@@ -1,22 +1,23 @@
-﻿/*     This file is part of OAI-PMH .Net.
+﻿/*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
 
 using FederatedSearch.API;
 using FederatedSearch.API.Common;
 using FederatedSearch.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,39 +35,83 @@ namespace FederatedSearch.Controllers
         /* GET                                                                                        */
         /*------------------------------------------------------------------------------------------*/
 
-        private HttpResponseMessage GetRepositoryList()
+        private HttpResponseMessage GetDataProviders()
         {
-            IEnumerable<OAIDataProvider> repositories = OAIOperations.GetRepositoryList();
-            if (repositories.Count() > 0)
+            IEnumerable<OAIDataProvider> dataProviders = OAIOperations.GetDataProviders();
+            if (dataProviders.Count() > 0)
             {
-                return Common.JsonResponse(repositories.Select(dp =>
+                return Common.JsonResponse(dataProviders/*.Select(dp =>
                     new
                     {
                         dp.AdminEmail,
                         dp.BaseURL,
                         dp.Compression,
                         dp.DeletedRecord,
-                        dp.EarliestDatestamp
-                        ,
+                        dp.EarliestDatestamp,
+                        dp.FirstSource,
+                        dp.Function,
                         dp.Granularity,
                         dp.LastHarvesting,
                         dp.OAIDataProviderId,
-                        dp.ProtocolVersion
-                        ,
-                        dp.RepositoryName
-                    }));
+                        dp.ProtocolVersion,
+                        dp.RepositoryName,
+                        dp.SecondSource
+                    })*/);
             }
             return Common.JsonNullResponse();
         }
 
-        private HttpResponseMessage AddRepository(string baseURL)
+        private HttpResponseMessage AddOrUpdateDataProvider(string baseURL, string oaiDataProvider)
         {
-            OAIDataProvider dataProvider = OAIOperations.AddRepository(baseURL);
+            OAIDataProvider dataProvider = null;
+            try
+            {
+                dataProvider = JsonConvert.DeserializeObject<OAIDataProvider>(oaiDataProvider);
+            }
+            catch (Exception) { }
+
+            dataProvider = OAIOperations.AddOrUpdateDataProvider(baseURL, dataProvider);
             if (dataProvider != null)
             {
-                return Common.JsonResponse(true);
+                return Common.JsonResponse(dataProvider);
             }
             return Common.JsonNullResponse();
+        }
+
+        private HttpResponseMessage DeleteDataProvider(string identifier)
+        {
+            if (!string.IsNullOrEmpty(identifier))
+            {
+                int id;
+                if (int.TryParse(identifier, out id) && OAIOperations.DeleteDataProvider(id))
+                {
+                    return Common.JsonResponse(true);
+                }
+                else
+                {
+                    return Common.JsonErrorResponse("Could not delete the data provider.");
+                }
+            }
+
+            return Common.JsonErrorResponse("No data provider with this id could be found.");
+        }
+
+        private HttpResponseMessage ReIdentifyDataProvider(string identifier)
+        {
+            if (!string.IsNullOrEmpty(identifier))
+            {
+                int id;
+                if (int.TryParse(identifier, out id))
+                {
+                    return Common.JsonResponse(OAIOperations.ReIdentifyDataProvider(id));
+                }
+                else
+                {
+                    return Common.JsonErrorResponse("Could not delete the data provider.");
+                }
+            }
+
+            return Common.JsonErrorResponse("No data provider with this id could be found.");
         }
 
         private HttpResponseMessage HarvestAll(string metadataPrefix)
@@ -96,7 +141,7 @@ namespace FederatedSearch.Controllers
 
         private HttpResponseMessage GetProperties(string section = null)
         {
-            IEnumerable<OAISetting> properties = null;
+            IEnumerable<Property> properties = null;
             if (string.IsNullOrEmpty(section))
             {
                 properties = Properties.GetProperties();
@@ -122,7 +167,7 @@ namespace FederatedSearch.Controllers
                     value = string.Empty;
                 }
 
-                var setting = new OAISetting() { Key = name, Value = value, Section = section };
+                var setting = new Property() { Key = name, Value = value, Section = section };
 
                 if (OAIOperations.AddOrUpdateSetting(setting))
                 {
@@ -178,6 +223,7 @@ namespace FederatedSearch.Controllers
         public HttpResponseMessage GetResponse(
             string id,
             string baseURL = null,
+            string dataProvider = null,
             string identifier = null,
             string metadataPrefix = null,
             bool? harvestFiles = null,
@@ -192,10 +238,14 @@ namespace FederatedSearch.Controllers
 
             switch (id.Trim().ToLower())
             {
-                case "getrepositorylist":
-                    return GetRepositoryList();
-                case "addrepository":
-                    return AddRepository(baseURL);
+                case "getdataproviders":
+                    return GetDataProviders();
+                case "addorupdatedataprovider":
+                    return AddOrUpdateDataProvider(baseURL, dataProvider);
+                case "deletedataprovider":
+                    return DeleteDataProvider(identifier);
+                case "reidentifydataprovider":
+                    return ReIdentifyDataProvider(identifier);
                 case "harvestall":
                     return HarvestAll(metadataPrefix);
                 case "harvestrecord":

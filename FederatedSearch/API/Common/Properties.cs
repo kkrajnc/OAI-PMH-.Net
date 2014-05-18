@@ -1,17 +1,17 @@
-﻿/*     This file is part of OAI-PMH .Net.
+﻿/*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
 
 using FederatedSearch.API.Common;
@@ -34,13 +34,13 @@ namespace FederatedSearch.API /* .Common */
     {
         #region Required properties
 
-        private static ConcurrentDictionary<string, OAISetting> properties = new ConcurrentDictionary<string, OAISetting>();
+        private static ConcurrentDictionary<string, Property> properties = new ConcurrentDictionary<string, Property>();
         public static XmlSchemaSet schemas = new XmlSchemaSet();
         public static Dictionary<string, ResumptionToken> resumptionTokens = new Dictionary<string, ResumptionToken>();
         public static List<string> allowedMimeTypesList = new List<string>();
         public static ConcurrentDictionary<string, string> propertySectionsTable = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, PageFileHarvestProperties> pageFileHarvestProperties = new ConcurrentDictionary<string, PageFileHarvestProperties>();
-
+        
         #endregion
 
         #region /* Identify properties -------------------------------------------------------------*/
@@ -220,10 +220,10 @@ namespace FederatedSearch.API /* .Common */
         }
         private static string GetStringProperty(string name, string defaultReturn)
         {
-            OAISetting setting = null;
-            if (properties.TryGetValue(name, out setting))
+            Property property = null;
+            if (properties.TryGetValue(name, out property))
             {
-                return setting.Value;
+                return property.Value;
             }
             return defaultReturn;
         }
@@ -236,10 +236,10 @@ namespace FederatedSearch.API /* .Common */
         private static bool GetBoolProperty(string name, bool defaultReturn)
         {
             bool bValue = false;
-            OAISetting setting = null;
-            if (properties.TryGetValue(name, out setting) &&
-                !string.IsNullOrEmpty(setting.Value) &&
-                bool.TryParse(setting.Value, out bValue))
+            Property property = null;
+            if (properties.TryGetValue(name, out property) &&
+                !string.IsNullOrEmpty(property.Value) &&
+                bool.TryParse(property.Value, out bValue))
             {
                 return bValue;
             }
@@ -254,10 +254,10 @@ namespace FederatedSearch.API /* .Common */
         private static int GetIntProperty(string name, int defaultReturn)
         {
             int iValue = 0;
-            OAISetting setting = null;
-            if (properties.TryGetValue(name, out setting) &&
-                !string.IsNullOrEmpty(setting.Value) &&
-                int.TryParse(setting.Value, out iValue))
+            Property property = null;
+            if (properties.TryGetValue(name, out property) &&
+                !string.IsNullOrEmpty(property.Value) &&
+                int.TryParse(property.Value, out iValue))
             {
                 return iValue;
             }
@@ -272,10 +272,10 @@ namespace FederatedSearch.API /* .Common */
         private static TimeSpan GetTimeSpanProperty(string name, TimeSpan defaultReturn)
         {
             TimeSpan tsValue = TimeSpan.MinValue;
-            OAISetting setting = null;
-            if (properties.TryGetValue(name, out setting) &&
-                !string.IsNullOrEmpty(setting.Value) &&
-                TimeSpan.TryParse(setting.Value, out tsValue))
+            Property property = null;
+            if (properties.TryGetValue(name, out property) &&
+                !string.IsNullOrEmpty(property.Value) &&
+                TimeSpan.TryParse(property.Value, out tsValue))
             {
                 return tsValue;
             }
@@ -284,11 +284,11 @@ namespace FederatedSearch.API /* .Common */
 
         public static void SetProperty(string name, object value)
         {
-            OAISetting setting = null;
-            if (properties.TryGetValue(name, out setting))
+            Property property = null;
+            if (properties.TryGetValue(name, out property))
             {
-                setting.Value = value.ToString();
-                properties.AddOrUpdate(name, setting, (key, oldValue) => setting);
+                property.Value = value.ToString();
+                properties.AddOrUpdate(name, property, (key, oldValue) => property);
             }
         }
 
@@ -300,7 +300,7 @@ namespace FederatedSearch.API /* .Common */
             schemas.Add(targetNamespace, schemaUri);
         }
 
-        public static IEnumerable<OAISetting> GetProperties()
+        public static IEnumerable<Property> GetProperties()
         {
             return properties
                 .OrderBy(p => p.Value.Section)
@@ -308,7 +308,7 @@ namespace FederatedSearch.API /* .Common */
                 .Select(p => p.Value);
         }
 
-        public static IEnumerable<OAISetting> GetSectionProperties(string section)
+        public static IEnumerable<Property> GetSectionProperties(string section)
         {
             if (string.IsNullOrEmpty(section))
             {
@@ -322,14 +322,14 @@ namespace FederatedSearch.API /* .Common */
 
         public static void UpdateFromDatabase()
         {
-            var settings = new List<OAISetting>();
+            var propertiesList = new List<Property>();
             using (var context = new OaiPmhContext())
             {
-                settings = context.OAISetting.ToList();
+                propertiesList = context.Property.ToList();
             }
-            foreach (var setting in settings)
+            foreach (var property in propertiesList)
             {
-                properties.AddOrUpdate(setting.Key, setting, (key, oldValue) => setting);
+                properties.AddOrUpdate(property.Key, property, (key, oldValue) => property);
             }
         }
 
@@ -338,10 +338,10 @@ namespace FederatedSearch.API /* .Common */
             return properties.ContainsKey(name);
         }
 
-        public static void AddOrUpdate(OAISetting setting)
+        public static void AddOrUpdate(Property property)
         {
-            properties.AddOrUpdate(setting.Key, setting, (key, oldValue) => setting);
-            if (setting.Section == "pfhp")
+            properties.AddOrUpdate(property.Key, property, (key, oldValue) => property);
+            if (property.Section == "pfhp")
             {
                 Properties.UpdatePageFileHarvestProperties();
             }
@@ -349,9 +349,9 @@ namespace FederatedSearch.API /* .Common */
 
         public static bool Delete(string name)
         {
-            OAISetting setting;
-            bool isRemoved = properties.TryRemove(name, out setting);
-            if (isRemoved && setting.Section == "pfhp")
+            Property property;
+            bool isRemoved = properties.TryRemove(name, out property);
+            if (isRemoved && property.Section == "pfhp")
             {
                 Properties.UpdatePageFileHarvestProperties();
             }
@@ -390,7 +390,7 @@ namespace FederatedSearch.API /* .Common */
                     Helper.TryToDeserializeJson<PageFileHarvestProperties>(p.Value.Value))));
         }
 
-        public OAISetting this[string key]
+        public Property this[string key]
         {
             get
             {

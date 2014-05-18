@@ -1,17 +1,17 @@
-﻿/*     This file is part of OAI-PMH .Net.
+﻿/*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
 
 using FederatedSearch.API.Common;
@@ -32,39 +32,115 @@ namespace FederatedSearch.API
     {
         #region OAIDataProvider
 
-        public static IEnumerable<OAIDataProvider> GetRepositoryList()
+        public static IEnumerable<OAIDataProvider> GetDataProviders()
         {
             using (var context = new OaiPmhContext())
             {
+                context.Configuration.ProxyCreationEnabled = false; 
                 return context.OAIDataProvider.ToList();
             }
         }
 
-        public static OAIDataProvider AddRepository(string baseURL)
+        private static OAIDataProvider IdentifyDataProvider(string baseURL)
         {
             if (!string.IsNullOrEmpty(baseURL))
             {
-                /* get and parse XML document */
-                string body;
-                using (HttpClient client = new HttpClient())
+                try
                 {
-                    body = client.GetStringAsync(baseURL + "?verb=Identify").Result;
-                }
-                XDocument xd = XDocument.Parse(body);
-
-                XElement root = xd.Root.Element(MlNamespaces.oaiNs + "Identify");
-
-                OAIDataProvider dp = OAIDataProvider.Decode(root);
-                if (dp != null)
-                {
-                    using (var context = new OaiPmhContext())
+                    string body;
+                    using (HttpClient client = new HttpClient())
                     {
-                        if (!context.OAIDataProvider.Where(d => d.BaseURL == dp.BaseURL).Any())
-                        {
-                            context.OAIDataProvider.Add(dp);
-                            context.SaveChanges();
-                            return dp;
-                        }
+                        body = client.GetStringAsync(baseURL + "?verb=Identify").Result;
+                    }
+                    XDocument xd = XDocument.Parse(body);
+
+                    XElement root = xd.Root.Element(MlNamespaces.oaiNs + "Identify");
+
+                    return OAIDataProvider.Decode(root);
+                }
+                catch (Exception) { }
+            }
+
+            return null;
+        }
+
+        public static OAIDataProvider AddOrUpdateDataProvider(string baseURL, OAIDataProvider dataProvider)
+        {
+            using (var context = new OaiPmhContext())
+            {
+                OAIDataProvider dp = null;
+                bool isUpdateMode = dataProvider != null && dataProvider.OAIDataProviderId != 0;
+                if (isUpdateMode)
+                {
+                    /* get data provider to update */
+                    context.Configuration.ProxyCreationEnabled = false; 
+                    dp = context.OAIDataProvider.Where(d => d.OAIDataProviderId == dataProvider.OAIDataProviderId).FirstOrDefault();
+                }
+
+                else if (!string.IsNullOrEmpty(baseURL))
+                {
+                    /* get and parse XML document */
+                    dp = IdentifyDataProvider(baseURL);
+                }
+
+                if (dp != null && isUpdateMode ? true : !context.OAIDataProvider.Where(d => d.BaseURL == dp.BaseURL).Any())
+                {
+                    if (dataProvider != null)
+                    {
+                        dp.Function = dataProvider.Function;
+                        dp.FirstSource = dataProvider.FirstSource;
+                        dp.SecondSource = dataProvider.SecondSource;
+                    }
+                    if (!isUpdateMode)
+                    {
+                        context.OAIDataProvider.Add(dp);
+                    }
+
+                    context.SaveChanges();
+                    return dp;
+                }
+            }
+
+            return null;
+        }
+
+        public static bool DeleteDataProvider(int id)
+        {
+            using (var context = new OaiPmhContext())
+            {
+                var dataProvider = context.OAIDataProvider.Where(d => d.OAIDataProviderId == id).FirstOrDefault();
+                if (dataProvider != null)
+                {
+                    context.OAIDataProvider.Remove(dataProvider);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal static OAIDataProvider ReIdentifyDataProvider(int id)
+        {
+            using (var context = new OaiPmhContext())
+            {
+                context.Configuration.ProxyCreationEnabled = false; 
+                var dataProvider = context.OAIDataProvider.Where(d => d.OAIDataProviderId == id).FirstOrDefault();
+                if (dataProvider != null)
+                {
+                    var dp = IdentifyDataProvider(dataProvider.BaseURL);
+                    if (dp != null)
+                    {
+                        dataProvider.AdminEmail = dp.AdminEmail;
+                        dataProvider.BaseURL = dp.BaseURL;
+                        dataProvider.Compression = dp.Compression;
+                        dataProvider.DeletedRecord = dp.DeletedRecord;
+                        dataProvider.EarliestDatestamp = dp.EarliestDatestamp;
+                        dataProvider.Granularity = dp.Granularity;
+                        dataProvider.ProtocolVersion = dp.ProtocolVersion;
+                        dataProvider.RepositoryName = dp.RepositoryName;
+
+                        context.SaveChanges();
+                        return dataProvider;
                     }
                 }
             }
@@ -75,7 +151,7 @@ namespace FederatedSearch.API
 
         #region OAISetting
 
-        public static bool AddOrUpdateSetting(OAISetting newSetting)
+        public static bool AddOrUpdateSetting(Property newSetting)
         {
             if (!string.IsNullOrEmpty(newSetting.Key))
             {
@@ -86,11 +162,11 @@ namespace FederatedSearch.API
                         newSetting.Value = "";
                     }
 
-                    OAISetting setting = context.OAISetting.Where(s => s.Key == newSetting.Key).FirstOrDefault();
+                    Property setting = context.Property.Where(s => s.Key == newSetting.Key).FirstOrDefault();
                     if (setting == null)
                     {
                         /* add */
-                        context.OAISetting.Add(newSetting);
+                        context.Property.Add(newSetting);
                         context.SaveChanges();
                         return true;
                     }
@@ -111,10 +187,10 @@ namespace FederatedSearch.API
             {
                 using (var context = new OaiPmhContext())
                 {
-                    OAISetting setting = context.OAISetting.Where(s => s.Key == name).FirstOrDefault();
+                    Property setting = context.Property.Where(s => s.Key == name).FirstOrDefault();
                     if (setting != null)
                     {
-                        context.OAISetting.Remove(setting);
+                        context.Property.Remove(setting);
                         context.SaveChanges();
                         return true;
                     }

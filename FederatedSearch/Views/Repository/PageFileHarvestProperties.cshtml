@@ -1,17 +1,17 @@
-﻿@*     This file is part of OAI-PMH .Net.
+﻿@*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
 @model List<FederatedSearch.Models.PageFileHarvestProperties>
@@ -22,9 +22,8 @@
     var sectionList = ViewBag.SectionList as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
-<h2>Properties</h2>
+<h2>Page File Harvest Properties</h2>
 <hr style="margin-top: 0px; padding-top: 0px;" />
-
 
 @if (Model != null && Model.Count > 0)
 {
@@ -205,7 +204,7 @@
     });
 
     function getPropertiesDiv(button) {
-        return $(button).closest('div.propertyWrapper');//.parent('div').siblings('div').first();
+        return $(button).closest('div.propertyWrapper');
     }
 
     function getProperties(propertiesDiv, isEditMode, isAddMode) {
@@ -355,9 +354,15 @@
             }
         }
 
-        function deletedProperty(data) {
-            var propertiesDiv = findPropertiesDiv(data.BaseUri);
-            propertiesDiv.parent('div').parent('div').remove();
+    function deletedProperty(data) {
+        switch (data.status) {
+            case 'ok':
+                var propertiesDiv = findPropertiesDiv(data.BaseUri);
+                propertiesDiv.parent('div').parent('div').remove();
+                break;
+            case 'failure':
+                break;
+        }
         }
 
         function deleteProperty(button) {

@@ -1,24 +1,24 @@
-﻿@*     This file is part of OAI-PMH .Net.
+﻿@*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
 @{
     ViewBag.Title = " Add Data Provider";
     var options = new AjaxOptions()
     {
-        Url = "/Repository/DataProvider/AddRepository",
+        Url = "/Repository/DataProvider/AddOrUpdate",
         HttpMethod = "post",
         LoadingElementId = "waiting",
         LoadingElementDuration = 10,
@@ -29,7 +29,7 @@
 <h2>Add Data Provider</h2>
 <hr style="margin-top: 0px; padding-top: 0px;" />
 
-@using (Ajax.BeginForm("DataProvider", "Repository", new { id = "AddRepository" }, options))
+@using (Ajax.BeginForm("DataProvider", "Repository", new { id = "AddOrUpdate" }, options))
 {
     <div id="failedAdding" style="display: none; color: red; font-weight: bold">
         <p>Adding failed!</p>
@@ -37,28 +37,98 @@
     <div id="waiting" style="display: none; color: #66afe9; font-weight: bold">
         <p>Waiting for response...</p>
     </div>
-    <div class="row">
-        <div class="col-md-1" style="padding-right: 0">
-            <label for="baseUrl">Base URL: </label>
-        </div>
-        <div class="col-md-9">
-            <input id="baseUrl" name="baseURL" type="text" class="form-control" />
-        </div>
-        <div class="col-md-2">
-            <input type="submit" value="Add" class="btn oaiBtn btn-default" />
-        </div>
+    <div class="panel panel-default">
+        <table class="table">
+            <tr>
+                <td>
+                    <label for="baseUrl">Base URL: </label>
+                </td>
+                <td>
+                    <input id="baseUrl" name="baseURL" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="baseUrl">Function: </label>
+                </td>
+                <td>
+                    <select name="Function" class="form-control">
+                        <option value="">None</option>
+                        <option value="FromPageOnly">FromPageOnly</option>
+                        <option value="FromSourceTag">FromSourceTag</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="baseUrl">First Source: </label>
+                </td>
+                <td>
+                    <select name="FirstSource" class="form-control">
+                        <option value="">None</option>
+                        <option value="Title">Title</option>
+                        <option value="Creator">Creator</option>
+                        <option value="Subject">Subject</option>
+                        <option value="Description">Description</option>
+                        <option value="Publisher">Publisher</option>
+                        <option value="Contributor">Contributor</option>
+                        <option value="Date">Date</option>
+                        <option value="Type">Type</option>
+                        <option value="Format">Format</option>
+                        <option value="Identifier">Identifier</option>
+                        <option value="Source">Source</option>
+                        <option value="Language">Language</option>
+                        <option value="Relation">Relation</option>
+                        <option value="Coverage">Coverage</option>
+                        <option value="Rights">Rights</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="baseUrl">Second Source: </label>
+                </td>
+                <td>
+                    <select name="SecondSource" class="form-control">
+                        <option value="">None</option>
+                        <option value="Title">Title</option>
+                        <option value="Creator">Creator</option>
+                        <option value="Subject">Subject</option>
+                        <option value="Description">Description</option>
+                        <option value="Publisher">Publisher</option>
+                        <option value="Contributor">Contributor</option>
+                        <option value="Date">Date</option>
+                        <option value="Type">Type</option>
+                        <option value="Format">Format</option>
+                        <option value="Identifier">Identifier</option>
+                        <option value="Source">Source</option>
+                        <option value="Language">Language</option>
+                        <option value="Relation">Relation</option>
+                        <option value="Coverage">Coverage</option>
+                        <option value="Rights">Rights</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Add" class="btn oaiBtn btn-default form-control" />
+                </td>
+            </tr>
+        </table>
     </div>
-    <br />
 }
 
 <script type="text/javascript">
 
-    function onSuccess(response) {
-        if (!response.successfull) {
-            $("#failedAdding").show("fast");
-        }
-        else {
-            window.location.replace('@Url.Action("DataProvider", "Repository", new { id = "List" })');
+    function onSuccess(data) {
+        switch (data.status) {
+            case 'ok':
+                window.location.replace('@Url.Action("DataProvider", "Repository", new { id = "List" })');
+                break;
+            case 'failure':
+                $("#failedAdding").show("fast");
+                break;
         }
     }
 

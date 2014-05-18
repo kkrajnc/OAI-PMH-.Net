@@ -1,17 +1,17 @@
-﻿/*     This file is part of OAI-PMH .Net.
+﻿/*     This file is part of OAI-PMH-.Net.
 *  
-*      OAI-PMH .Net is free software: you can redistribute it and/or modify
+*      OAI-PMH-.Net is free software: you can redistribute it and/or modify
 *      it under the terms of the GNU General Public License as published by
 *      the Free Software Foundation, either version 3 of the License, or
 *      (at your option) any later version.
 *  
-*      OAI-PMH .Net is distributed in the hope that it will be useful,
+*      OAI-PMH-.Net is distributed in the hope that it will be useful,
 *      but WITHOUT ANY WARRANTY; without even the implied warranty of
 *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *      GNU General Public License for more details.
 *  
 *      You should have received a copy of the GNU General Public License
-*      along with OAI-PMH .Net.  If not, see <http://www.gnu.org/licenses/>.
+*      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*/
 
 using FederatedSearch.API;
@@ -42,46 +42,67 @@ namespace FederatedSearch.Controllers
             {
                 switch (id.Trim().ToLower())
                 {
+                    case "add":
+                        return View("DataProviderAdd");
                     case "list":
+                    default:
                         var baseLocalUrl = Common.GetBaseUrl(this);
                         var repositoryList = await OaiApiRestService.GetDataProviders(baseLocalUrl) ?? new List<OAIDataProvider>();
                         return View("DataProviderList", repositoryList);
-                    case "addrepository":
-                        return View("DataProviderAdd");
-                    default: return null;
                 }
             }
             return null;
         }
 
         [HttpPost]
-        public async Task<ActionResult> DataProvider(string id, string baseURL = null)
+        public async Task<ActionResult> DataProvider(
+            string id,
+            string baseURL = null,
+            OAIDataProvider dataProvider = null,
+            string OAIDataProviderId = null)
         {
             if (!string.IsNullOrEmpty(id))
             {
+                var baseLocalUrl = Common.GetBaseUrl(this);
                 switch (id.Trim().ToLower())
                 {
-                    case "addrepository":
-                        var baseLocalUrl = Common.GetBaseUrl(this);
-                        baseURL = baseURL.Trim();
-                        if (await OaiApiRestService.AddDataProvider(baseLocalUrl, baseURL))
+                    case "addorupdate":
+                        baseURL = string.IsNullOrEmpty(baseURL) ? null : baseURL.Trim();
+                        var jsonString = JsonConvert.SerializeObject(dataProvider);
+                        dataProvider = await OaiApiRestService.AddOrUpdateDataProvider(baseLocalUrl, baseURL, jsonString);
+                        if (dataProvider != null)
                         {
-                            return Json(new { successfull = true });
+                            return Json(new
+                            {
+                                status = ok,
+                                dataProvider = dataProvider
+                            });
                         }
-                        else
-                        {
-                            return Json(new { successfull = false });
-                        }
+                        return Json(new { status = failure });
 
-                    default: return Json(new { successfull = false });
+                    case "delete":
+                        if (await OaiApiRestService.DeleteDataProvider(baseLocalUrl, OAIDataProviderId))
+                        {
+                            return Json(new { status = ok, OAIDataProviderId = OAIDataProviderId });
+                        }
+                        return Json(new { status = failure });
+
+                    case "reidentify":
+                        dataProvider = await OaiApiRestService.ReIdentifyDataProvider(baseLocalUrl, OAIDataProviderId);
+                        if (dataProvider != null)
+                        {
+                            return Json(new { status = ok, dataProvider = dataProvider });
+                        }
+                        return Json(new { status = failure });
                 }
             }
-            return Json(new { successfull = false });
+
+            return Json(new { status = failure });
         }
 
         #endregion /* DataProvider */
 
-        #region Harvet
+        #region Harvest
 
         public async Task<ActionResult> Harvest(string id)
         {
@@ -132,58 +153,60 @@ namespace FederatedSearch.Controllers
             string metadataPrefix = null,
             bool? harvestFiles = null)
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
-            switch (id.Trim().ToLower())
+            if (!string.IsNullOrEmpty(id))
             {
-                case "start":
-                    if (repositoryList != null && repositoryList.Count > 0)
-                    {
-                        var startResult = await OaiApiRestService.BeginHarvesting(baseLocalUrl, repositoryList);
-                        string startStatus = (startResult != null && startResult.Count > 0) ? ok : failure;
-                        return Json(new { status = startStatus, dataProviderId = repositoryList[0].OAIDataProviderId, result = startResult });
-                    }
-                    return Json(new { status = failure, result = "No data providers were submitted!" });
+                var baseLocalUrl = Common.GetBaseUrl(this);
+                switch (id.Trim().ToLower())
+                {
+                    case "start":
+                        if (repositoryList != null && repositoryList.Count > 0)
+                        {
+                            var startResult = await OaiApiRestService.BeginHarvesting(baseLocalUrl, repositoryList);
+                            string startStatus = (startResult != null && startResult.Count > 0) ? ok : failure;
+                            return Json(new { status = startStatus, dataProviderId = repositoryList[0].OAIDataProviderId, result = startResult });
+                        }
+                        return Json(new { status = failure, result = "No data providers were submitted!" });
 
-                case "stop":
-                    bool stopResult = await OaiApiRestService.StopHarvesting(baseLocalUrl, dataProviderId);
-                    string stopStatus = stopResult ? ok : failure;
-                    return Json(new { status = stopStatus, dataProviderId = dataProviderId });
+                    case "stop":
+                        bool stopResult = await OaiApiRestService.StopHarvesting(baseLocalUrl, dataProviderId);
+                        string stopStatus = stopResult ? ok : failure;
+                        return Json(new { status = stopStatus, dataProviderId = dataProviderId });
 
-                case "status":
-                    var statusResult = await OaiApiRestService.HarvestingStats(baseLocalUrl);
-                    string status = (statusResult != null && statusResult.Count > 0) ? ok : failure;
-                    return Json(new { status = status, result = statusResult });
+                    case "status":
+                        var statusResult = await OaiApiRestService.HarvestingStats(baseLocalUrl);
+                        string status = (statusResult != null && statusResult.Count > 0) ? ok : failure;
+                        return Json(new { status = status, result = statusResult });
 
-                case "clear":
-                    bool clearResult = await OaiApiRestService.ClearHarvestingStat(baseLocalUrl, dataProviderId);
-                    string clearStatus = clearResult ? ok : failure;
-                    return Json(new { status = clearStatus, dataProviderId = dataProviderId });
+                    case "clear":
+                        bool clearResult = await OaiApiRestService.ClearHarvestingStat(baseLocalUrl, dataProviderId);
+                        string clearStatus = clearResult ? ok : failure;
+                        return Json(new { status = clearStatus, dataProviderId = dataProviderId });
 
-                case "startall":
-                    if (repositoryList != null && repositoryList.Count > 0)
-                    {
-                        var startResult = await OaiApiRestService.BeginHarvesting(baseLocalUrl, repositoryList);
-                        string startStatus = (startResult != null && startResult.Count > 0) ? ok : failure;
-                        return Json(new { status = startStatus, operation = "startAll", result = startResult });
-                    }
-                    return Json(new { status = failure, result = "No data providers were submitted!" });
+                    case "startall":
+                        if (repositoryList != null && repositoryList.Count > 0)
+                        {
+                            var startResult = await OaiApiRestService.BeginHarvesting(baseLocalUrl, repositoryList);
+                            string startStatus = (startResult != null && startResult.Count > 0) ? ok : failure;
+                            return Json(new { status = startStatus, operation = "startAll", result = startResult });
+                        }
+                        return Json(new { status = failure, result = "No data providers were submitted!" });
 
-                case "stopall":
-                    bool stopAllResult = await OaiApiRestService.StopHarvestingAll(baseLocalUrl);
-                    string stopAllStatus = stopAllResult ? ok : failure;
-                    return Json(new { status = stopAllStatus, operation = "stopAll" });
+                    case "stopall":
+                        bool stopAllResult = await OaiApiRestService.StopHarvestingAll(baseLocalUrl);
+                        string stopAllStatus = stopAllResult ? ok : failure;
+                        return Json(new { status = stopAllStatus, operation = "stopAll" });
 
-                case "record":
-                    string oaiIdentifier = await OaiApiRestService.HarvestRecord(baseLocalUrl, baseURL, identifier, metadataPrefix, harvestFiles);
-                    if (!string.IsNullOrEmpty(oaiIdentifier))
-                    {
-                        return Json(new { successfull = true, identifier = oaiIdentifier });
-                    }
-                    return Json(new { successfull = false });
-
-                default:
-                    return Json(new { status = failure });
+                    case "record":
+                        string oaiIdentifier = await OaiApiRestService.HarvestRecord(baseLocalUrl, baseURL, identifier, metadataPrefix, harvestFiles);
+                        if (!string.IsNullOrEmpty(oaiIdentifier))
+                        {
+                            return Json(new { successfull = true, identifier = oaiIdentifier });
+                        }
+                        return Json(new { successfull = false });
+                }
             }
+
+            return Json(new { status = failure });
         }
 
         #endregion /* Harvest */
@@ -204,30 +227,33 @@ namespace FederatedSearch.Controllers
             PageFileHarvestProperties properties = null,
             string BaseUri = null)
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
-            switch (id.Trim().ToLower())
+            if (!string.IsNullOrEmpty(id))
             {
-                case "addorupdate":
-                    var jsonString = JsonConvert.SerializeObject(properties);
-                    if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, properties.BaseUri, jsonString, "pfhp"))
-                    {
-                        return Json(new
+                var baseLocalUrl = Common.GetBaseUrl(this);
+                switch (id.Trim().ToLower())
+                {
+                    case "addorupdate":
+                        var jsonString = JsonConvert.SerializeObject(properties);
+                        if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, properties.BaseUri, jsonString, "pfhp"))
                         {
-                            status = ok,
-                            properties = properties
-                        });
-                    }
-                    return Json(new { status = failure });
+                            return Json(new
+                            {
+                                status = ok,
+                                properties = properties
+                            });
+                        }
+                        return Json(new { status = failure });
 
-                case "delete":
-                    if (await OaiApiRestService.DeleteProperty(baseLocalUrl, BaseUri))
-                    {
-                        return Json(new { status = ok, BaseUri = BaseUri });
-                    }
-                    return Json(new { status = failure });
+                    case "delete":
+                        if (await OaiApiRestService.DeleteProperty(baseLocalUrl, BaseUri))
+                        {
+                            return Json(new { status = ok, BaseUri = BaseUri });
+                        }
+                        return Json(new { status = failure });
+                }
             }
 
-            return null;
+            return Json(new { status = failure });
         }
 
         #endregion /* FileHarvest */
@@ -267,7 +293,7 @@ namespace FederatedSearch.Controllers
             var sectionList = await OaiApiRestService.GetPropertySections(baseLocalUrl);
             var propertyList = await OaiApiRestService.GetProperties(baseLocalUrl, null);
 
-            Dictionary<string, List<OAISetting>> propertyGroups;
+            Dictionary<string, List<Property>> propertyGroups;
 
             if (sectionList != null && sectionList.Count > 0)
             {
@@ -276,14 +302,14 @@ namespace FederatedSearch.Controllers
                     propertyList,
                     s => s.Key,
                     p => p.Section,
-                    (s, group) => new KeyValuePair<string, List<OAISetting>>(s.Key, group.ToList())).ToDictionary(k => k.Key, v => v.Value);
+                    (s, group) => new KeyValuePair<string, List<Property>>(s.Key, group.ToList())).ToDictionary(k => k.Key, v => v.Value);
 
             }
             else
             {
-                var tmpPropsList = new List<OAISetting>();
-                tmpPropsList.Add(new OAISetting() { Key = "PropertySections", Value = "", Section = "hp" });
-                propertyGroups = new Dictionary<string, List<OAISetting>>();
+                var tmpPropsList = new List<Property>();
+                tmpPropsList.Add(new Property() { Key = "PropertySections", Value = "", Section = "hp" });
+                propertyGroups = new Dictionary<string, List<Property>>();
                 propertyGroups.Add("Harvester", tmpPropsList);
             }
 
@@ -298,25 +324,28 @@ namespace FederatedSearch.Controllers
             string section = null,
             string oldSection = null)
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
-            switch (id.Trim().ToLower())
+            if (!string.IsNullOrEmpty(id))
             {
-                case "addorupdate":
-                    if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, name.Trim(), value.Trim(), section.Trim()))
-                    {
-                        return Json(new { status = ok, name = name, value = value, section = section, oldSection = oldSection });
-                    }
-                    return Json(new { status = failure });
+                var baseLocalUrl = Common.GetBaseUrl(this);
+                switch (id.Trim().ToLower())
+                {
+                    case "addorupdate":
+                        if (await OaiApiRestService.AddOrUpdateProperty(baseLocalUrl, name.Trim(), value.Trim(), section.Trim()))
+                        {
+                            return Json(new { status = ok, name = name, value = value, section = section, oldSection = oldSection });
+                        }
+                        return Json(new { status = failure });
 
-                case "delete":
-                    if (await OaiApiRestService.DeleteProperty(baseLocalUrl, name.Trim()))
-                    {
-                        return Json(new { status = ok, name = name, section = section });
-                    }
-                    return Json(new { status = failure });
+                    case "delete":
+                        if (await OaiApiRestService.DeleteProperty(baseLocalUrl, name.Trim()))
+                        {
+                            return Json(new { status = ok, name = name, section = section });
+                        }
+                        return Json(new { status = failure });
+                }
             }
 
-            return null;
+            return Json(new { status = failure });
         }
 
         #endregion /* Properties */
