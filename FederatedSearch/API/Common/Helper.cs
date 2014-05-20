@@ -37,7 +37,12 @@ namespace FederatedSearch.API.Common
         }
 
         /* Convert from UTC string to DateTime */
-        private static string[] dateFormats = { Enums.Granularity.Date, Enums.Granularity.DateTime };
+        private static string[] dateFormats = { 
+                                                  Enums.Granularity.Year, 
+                                                  Enums.Granularity.YearAndMonth, 
+                                                  Enums.Granularity.Date, 
+                                                  Enums.Granularity.DateTime
+                                              };
         public static bool ConvertUTCToDateTime(string utcString, out DateTime dateTime)
         {
             return DateTime.TryParseExact(utcString, dateFormats, CultureInfo.CurrentCulture,

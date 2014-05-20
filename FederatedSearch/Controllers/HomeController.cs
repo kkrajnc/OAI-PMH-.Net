@@ -21,9 +21,11 @@ using FederatedSearch.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -103,43 +105,38 @@ namespace FederatedSearch.Controllers
 
         public ActionResult Test()
         {
-            using (var context = new OaiPmhContext())
-            {
-                var metadata = context.Metadata.Where(m => m.Format.StartsWith("application")).Select(m => m.Format).ToList();
-                /*var metadata = context.Metadata.Where(m => m.Format.StartsWith("application")).FirstOrDefault();
-                if (metadata != null && !string.IsNullOrEmpty(metadata.Format))
-                {
-                    var record = (from h in context.Header
-                                  join om in context.ObjectMetadata on h.HeaderId equals om.ObjectId
-                                  join md in context.Metadata on om.MetadataId equals md.MetadataId
-                                  where om.ObjectType == Enums.ObjectType.OAIRecord
-                                  where om.MetadataType == Enums.MetadataType.Metadata
-                                  where md.MetadataId == metadata.MetadataId
-                                  select new RecordQueryResult()
-                                  {
-                                      Header = h,
-                                      Metadata = md
-                                  }).FirstOrDefault();*/
-
-                    /*record.Metadata = (from h in context.Header
-                                       join om in context.ObjectMetadata on h.HeaderId equals om.ObjectId
-                                       join md in context.Metadata on om.MetadataId equals md.MetadataId
-                                       where om.ObjectType == Enums.ObjectType.OAIRecord
-                                       where om.MetadataType == Enums.MetadataType.Metadata
-                                       where h.HeaderId == record.Header.HeaderId
-                                       select md).FirstOrDefault();*/
-
-                    /*record.About = (from h in context.Header
-                                    join om in context.ObjectMetadata on h.HeaderId equals om.ObjectId
-                                    join md in context.Metadata on om.MetadataId equals md.MetadataId
-                                    where om.ObjectType == Enums.ObjectType.OAIRecord
-                                    where om.MetadataType == Enums.MetadataType.About
-                                    where h.HeaderId == record.Header.HeaderId
-                                    select md).ToList();*/
-                //}
-            }
-
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Test(string id, string regex, string value)
+        {
+            switch (id)
+            {
+                case "regex":
+                    string result = string.Empty;
+                    foreach (Match match in new Regex(regex, RegexOptions.Compiled).Matches(value))
+                    {
+                        result += match.Value + ", ";
+                    }
+
+                    return Json(new
+                    {
+                        result = result
+                    });
+
+                case "combine":
+                    Uri tmpUri, baseUri = new Uri(regex);
+                    if (Uri.TryCreate(baseUri, value, out tmpUri))
+                    {
+                        return Json(new
+                        {
+                            result = tmpUri.ToString()
+                        });
+                    }
+                    break;
+            }
+            return null;
         }
     }
 }

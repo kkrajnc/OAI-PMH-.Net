@@ -300,6 +300,7 @@
     <Content Include="Views\Repository\Properties.cshtml" />
     <Content Include="Views\Repository\DeleteMetadata.cshtml" />
     <Content Include="Views\Repository\PageFileHarvestProperties.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -219,15 +219,21 @@ namespace FederatedSearch.API
                                                      where h.OAIDataProviderId == dataProvider.OAIDataProviderId
                                                      select h.FilePath).ToList();
 
-                                foreach (var file in filesToDelete)
+                                foreach (var fileList in filesToDelete)
                                 {
-                                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
+                                    if (!string.IsNullOrEmpty(fileList))
                                     {
-                                        try
+                                        foreach (var file in fileList.Split(new string[] { "][" }, StringSplitOptions.RemoveEmptyEntries))
                                         {
-                                            File.Delete(file);
+                                            if (!string.IsNullOrEmpty(file) && File.Exists(file))
+                                            {
+                                                try
+                                                {
+                                                    File.Delete(file);
+                                                }
+                                                catch (Exception) { }
+                                            }
                                         }
-                                        catch (Exception) { }
                                     }
                                 }
                             }

@@ -51,7 +51,10 @@ namespace FederatedSearch.API.Common
             
             if (string.IsNullOrEmpty(fileName) && response.ResponseUri != null)
             {
-                fileName = Path.GetFileName(response.ResponseUri.LocalPath);
+                if (response.ResponseUri.LocalPath.LastIndexOfAny(new char[] { ';', '=', '?', '&' }) < 0)
+                {
+                    fileName = Path.GetFileName(response.ResponseUri.LocalPath);
+                }
             }
 
             if (string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(fileProperties.Name))
@@ -220,13 +223,19 @@ namespace FederatedSearch.API.Common
 
             bool skipLineCheck = string.IsNullOrEmpty(lineRegex);
             string line = string.Empty;
-            using (var responseStream = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+            using (var buffer = new BufferedStream(response.GetResponseStream()))
             {
-                while ((line = responseStream.ReadLine()) != null)
+                using (var responseStream = new StreamReader(buffer, Encoding.UTF8))
                 {
-                    if (skipLineCheck || Regex.IsMatch(line, lineRegex, RegexOptions.Compiled))
+                    while ((line = responseStream.ReadLine()) != null)
                     {
-                        yield return new Regex(valueRegex, RegexOptions.Compiled).Match(line).Value;
+                        if (skipLineCheck || Regex.IsMatch(line, lineRegex, RegexOptions.Compiled))
+                        {
+                            foreach (Match match in new Regex(valueRegex, RegexOptions.Compiled).Matches(line))
+                            {
+                                yield return match.Value;
+                            }
+                        }
                     }
                 }
             }
@@ -329,34 +338,35 @@ namespace FederatedSearch.API.Common
 
                         string filePaths = string.Empty;
 
-                        foreach (var foundValue in FindInPage(response, properties.LineRegex, properties.ValueRegex))
+                        foreach (var foundValue in FindInPage(response, properties.LineRegex, properties.ValueRegex).Distinct())
                         {
                             /* second tier */
                             switch (properties.SecondTierValueOption.ToLower().Trim())
                             {
+                                case "concatenateurl":
+                                    Uri tmpUri;
+                                    if (Uri.TryCreate(fileProperties.Uri, foundValue, out tmpUri))
+                                    {
+                                        string completeUrl = HttpUtility.UrlDecode(tmpUri.ToString());
+                                        completeUrl = HttpUtility.HtmlDecode(completeUrl);
+                                        response = properties.SecondHttpMethod.ToLower() == "get" ?
+                                            GetResponse(completeUrl, cookies) : PostResponse(completeUrl, "", cookies);
+                                    }
+                                    else
+                                    {
+                                        response = null;
+                                    }
+                                    break;
+
+                                case "wholeurl":
+                                    response = properties.SecondHttpMethod.ToLower() == "get" ?
+                                        GetResponse(foundValue, cookies) : PostResponse(foundValue, "", cookies);
+                                    break;
+
                                 case "key":
                                     response = properties.SecondHttpMethod.ToLower() == "get" ?
                                         GetResponse(fileProperties.AbsoluteUri, cookies) :
                                         PostResponse(fileProperties.AbsoluteUri, "key=" + foundValue, cookies);
-                                    break;
-
-                                case "concatenateurl":
-                                    string completeUrl;
-                                    string authority = fileProperties.Uri.GetLeftPart(UriPartial.Authority);
-                                    if (authority.LastIndexOf('/') == authority.Length - 1 && foundValue.IndexOf('/') == 0)
-                                    {
-                                        completeUrl = authority + foundValue.Substring(1);
-                                    }
-                                    else
-                                    {
-                                        completeUrl = authority + foundValue;
-                                    }
-
-                                    completeUrl = HttpUtility.UrlDecode(completeUrl);
-                                    completeUrl = HttpUtility.HtmlDecode(completeUrl);
-
-                                    response = properties.SecondHttpMethod.ToLower() == "get" ?
-                                        GetResponse(completeUrl, cookies) : PostResponse(completeUrl, "", cookies);
                                     break;
                             }
 

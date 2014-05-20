@@ -141,7 +141,7 @@ namespace FederatedSearch.API
 
         #endregion /* Helper functions */
 
-        public static async Task<string> HarvestRecordAsync(
+        public static string HarvestRecord(
             string baseURL,
             string identifier,
             string metadataPrefix,
@@ -160,14 +160,14 @@ namespace FederatedSearch.API
             }
             if (dataProvider != null)
             {
-                return await HarvestRecordsAsync(
+                return HarvestRecordsAsync(
                     dataProvider,
                     url,
                     metadataPrefix,
                     deDup,
                     false,
                     harvestFile,
-                    false).ConfigureAwait(false);
+                    false).Result;
             }
             return null;
         }

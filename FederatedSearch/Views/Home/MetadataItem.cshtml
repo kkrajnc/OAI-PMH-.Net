@@ -46,7 +46,7 @@
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Publisher)</strong></td>
-            <td>@Html.DisplayFor(model => model.Publisher)</td>
+            <td>@Html.MetadataElementSplit(Model.Publisher)</td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Date)</strong></td>
@@ -66,23 +66,23 @@
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Source)</strong></td>
-            <td>@Html.DisplayFor(model => model.Source)</td>
+            <td>@Html.MetadataElementSplit(Model.Source)</td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Language)</strong></td>
-            <td>@Html.DisplayFor(model => model.Language)</td>
+            <td>@Html.MetadataElementSplit(Model.Language)</td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Relation)</strong></td>
-            <td>@Html.DisplayFor(model => model.Relation)</td>
+            <td>@Html.MetadataElementSplit(Model.Relation)</td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Coverage)</strong></td>
-            <td>@Html.DisplayFor(model => model.Coverage)</td>
+            <td>@Html.MetadataElementSplit(Model.Coverage)</td>
         </tr>
         <tr>
             <td><strong>@Html.DisplayNameFor(model => model.Rights)</strong></td>
-            <td>@Html.DisplayFor(model => model.Rights)</td>
+            <td>@Html.MetadataElementSplit(Model.Rights)</td>
         </tr>
     </table>
 }

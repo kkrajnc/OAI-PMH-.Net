@@ -40,23 +40,7 @@ namespace FederatedSearch.Controllers
             IEnumerable<OAIDataProvider> dataProviders = OAIOperations.GetDataProviders();
             if (dataProviders.Count() > 0)
             {
-                return Common.JsonResponse(dataProviders/*.Select(dp =>
-                    new
-                    {
-                        dp.AdminEmail,
-                        dp.BaseURL,
-                        dp.Compression,
-                        dp.DeletedRecord,
-                        dp.EarliestDatestamp,
-                        dp.FirstSource,
-                        dp.Function,
-                        dp.Granularity,
-                        dp.LastHarvesting,
-                        dp.OAIDataProviderId,
-                        dp.ProtocolVersion,
-                        dp.RepositoryName,
-                        dp.SecondSource
-                    })*/);
+                return Common.JsonResponse(dataProviders);
             }
             return Common.JsonNullResponse();
         }
@@ -126,12 +110,12 @@ namespace FederatedSearch.Controllers
             string metadataPrefix,
             bool? harvestFiles)
         {
-            string oaiIdentifier = Harvester.HarvestRecordAsync(
+            string oaiIdentifier = Harvester.HarvestRecord(
                 baseURL,
                 identifier,
                 metadataPrefix,
                 Enums.DeDuplication.Skip,
-                harvestFiles.HasValue ? harvestFiles.Value : false).Result;
+                harvestFiles.HasValue ? harvestFiles.Value : false);
             if (!string.IsNullOrEmpty(oaiIdentifier))
             {
                 return Common.JsonResponse(oaiIdentifier);

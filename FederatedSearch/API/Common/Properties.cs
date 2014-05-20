@@ -341,6 +341,15 @@ namespace FederatedSearch.API /* .Common */
         public static void AddOrUpdate(Property property)
         {
             properties.AddOrUpdate(property.Key, property, (key, oldValue) => property);
+            switch (property.Key.ToLower())
+            {
+                case "allowedmimetypes":
+                    Properties.UpdateMimeTypeList();
+                    break;
+                case "propertysections":
+                    Properties.UpdatePropertySections();
+                    break;
+            }
             if (property.Section == "pfhp")
             {
                 Properties.UpdatePageFileHarvestProperties();

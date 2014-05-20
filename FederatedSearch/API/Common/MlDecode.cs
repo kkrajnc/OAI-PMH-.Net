@@ -47,10 +47,18 @@ namespace FederatedSearch.API.Common
 
         public static DateTime? SafeDateTime(XAttribute xa)
         {
+            if (xa == null)
+            {
+                return null;
+            }
             return SafeDateTime(xa.Value);
         }
         public static DateTime? SafeDateTime(XElement xe)
         {
+            if (xe == null)
+            {
+                return null;
+            }
             return SafeDateTime(xe.Value);
         }
         public static DateTime? SafeDateTime(string value)

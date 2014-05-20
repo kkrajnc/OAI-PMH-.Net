@@ -138,7 +138,12 @@ namespace FederatedSearch.Controllers
                 }
             }
             var list = sb.ToString();
-            return new MvcHtmlString(list.Substring(0, list.Length - 2));
+            
+            if(list.Length > 2)
+            {
+                return new MvcHtmlString(list.Substring(0, list.Length - 2));
+            }
+            return new MvcHtmlString(list);
         }
 
         public static MvcHtmlString MetadataReverseNames(this HtmlHelper htmlHelper, string value)
@@ -153,7 +158,7 @@ namespace FederatedSearch.Controllers
 
         public static MvcHtmlString MetadataElementSplit(this HtmlHelper htmlHelper, string value, string lang)
         {
-            return new MvcHtmlString(Common.EnumerableToString(MlEncode.LimitElemenetsOnLang(value, lang, false)));
+            return new MvcHtmlString(Common.EnumerableToString(MlEncode.LimitElemenetsOnLang(value, lang, true)));
         }
 
         public static MvcHtmlString GetStackedList(this HtmlHelper htmlHelper, string value)
@@ -163,14 +168,14 @@ namespace FederatedSearch.Controllers
                 var sb = new StringBuilder();
                 var items = MlEncode.Element("item", value).ToList();
 
-                for (int i = 0; i < items.Count(); i++)
+                for (int i = 0; i < items.Count; i++)
                 {
                     if (!string.IsNullOrEmpty(items[i].Value))
                     {
                         sb.Append(items[i].Value);
-                        if ((i + 1) == items.Count())
+                        if ((i + 1) != items.Count)
                         {
-                            sb.Append("<br />");
+                            sb.Append(",<br />");
                         }
                     }
                 }

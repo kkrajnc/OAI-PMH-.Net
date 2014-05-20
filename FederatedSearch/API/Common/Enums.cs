@@ -48,6 +48,12 @@ namespace FederatedSearch.API.Common
 
         public class Granularity
         {
+            /* UTC year format */
+            public const string Year = "yyyy";
+
+            /* UTC year and month format */
+            public const string YearAndMonth = "yyyy'-'MM";
+
             /* UTC date format */
             public const string Date = "yyyy'-'MM'-'dd";
 
