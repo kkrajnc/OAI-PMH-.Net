@@ -21,6 +21,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -34,6 +35,70 @@ namespace FederatedSearch.API.Common
 {
     public class FileHarvester
     {
+        private static HttpWebResponse MakeRequest(string uri, string method, CookieContainer cookies = null, string content = null)
+        {
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(new Uri(uri));
+                request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0";
+                request.Referer = uri;
+                request.KeepAlive = true;
+                request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip,deflate");
+                request.CookieContainer = cookies;
+
+                switch (method)
+                {
+                    case "get":
+                        request.Method = "GET";
+                        break;
+                    case "post":
+                        request.Method = "POST";
+                        request.ContentLength = content.Length;
+                        using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                        {
+                            streamWriter.Write(content);
+                        }
+                        break;
+                }
+
+                return (HttpWebResponse)request.GetResponse();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        public static HttpWebResponse GetRequest(string uri, CookieContainer cookies = null)
+        {
+            return MakeRequest(uri, "get", cookies);
+        }
+        public static HttpWebResponse PostRequest(string uri, string content, CookieContainer cookies = null)
+        {
+            return MakeRequest(uri, "post", cookies, content);
+        }
+
+        public static Stream GetResponseStream(HttpWebResponse response)
+        {
+            Stream contentStream = response.GetResponseStream();
+
+            string contentEncoding = response.ContentEncoding;
+            if (!string.IsNullOrEmpty(contentEncoding))
+            {
+                if (contentEncoding.ToLower().Contains("gzip"))
+                {
+                    contentStream = new GZipStream(contentStream, CompressionMode.Decompress);
+                }
+                else if (contentEncoding.ToLower().Contains("deflate"))
+                {
+                    contentStream = new DeflateStream(contentStream, CompressionMode.Decompress);
+                }
+            }
+
+            return contentStream;
+        }
+
         public static string GetOrCreateFileName(HttpWebResponse response, FileProperties fileProperties)
         {
             if (response == null)
@@ -48,7 +113,7 @@ namespace FederatedSearch.API.Common
                 fileName = string.IsNullOrEmpty(contentDisposition) ?
                             null : new ContentDisposition(contentDisposition).FileName;
             }
-            
+
             if (string.IsNullOrEmpty(fileName) && response.ResponseUri != null)
             {
                 if (response.ResponseUri.LocalPath.LastIndexOfAny(new char[] { ';', '=', '?', '&' }) < 0)
@@ -114,7 +179,15 @@ namespace FederatedSearch.API.Common
         {
             if (response.Headers.AllKeys.Contains("Content-Type"))
             {
-                return response.Headers.GetValues("Content-Type").FirstOrDefault();
+                string contentType = response.Headers.GetValues("Content-Type").FirstOrDefault();
+                if (!string.IsNullOrEmpty(contentType))
+                {
+                    if (contentType.Contains(';'))
+                    {
+                        return contentType.Split(';')[0];
+                    }
+                    return contentType;
+                }
             }
 
             return string.Empty;
@@ -126,14 +199,24 @@ namespace FederatedSearch.API.Common
             {
                 return string.Empty;
             }
-            var key = Registry.ClassesRoot.OpenSubKey(@"MIME\Database\Content Type\" + format, false);
-            var extensionValue = key != null ? key.GetValue("Extension", null) : null;
-            return extensionValue != null ? extensionValue.ToString() : string.Empty;
+            if (format.Contains('/'))
+            {
+                var key = Registry.ClassesRoot.OpenSubKey(@"MIME\Database\Content Type\" + format, false);
+                var extensionValue = key != null ? key.GetValue("Extension", null) : null;
+                return extensionValue != null ? extensionValue.ToString() : string.Empty;
+            }
+
+            if (!format.StartsWith("."))
+            {
+                format = format.Insert(0, ".");
+            }
+
+            return format;
         }
 
         public static bool DownloadFile(string filePath, string uri)
         {
-            var response = GetResponse(uri);
+            var response = GetRequest(uri);
 
             return DownloadFile(filePath, response);
         }
@@ -152,10 +235,9 @@ namespace FederatedSearch.API.Common
 
             try
             {
-                using (Stream contentStream = response.GetResponseStream(),
-                        stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 4096, true))
+                using (WebClient wc = new WebClient())
                 {
-                    contentStream.CopyTo(stream);
+                    wc.DownloadFile(response.ResponseUri, filePath);
                 }
             }
             catch (Exception)
@@ -164,54 +246,6 @@ namespace FederatedSearch.API.Common
             }
 
             return true;
-        }
-
-        public static HttpWebResponse GetResponse(string uri, CookieContainer cookies = null)
-        {
-            try
-            {
-                var request = (HttpWebRequest)WebRequest.Create(new Uri(uri));
-                request.Method = "GET";
-                request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0";
-                request.Referer = uri;
-                request.KeepAlive = true;
-                request.CookieContainer = cookies;
-                return (HttpWebResponse)request.GetResponse();
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public static HttpWebResponse PostResponse(string uri, string content, CookieContainer cookies = null)
-        {
-            try
-            {
-                var request = (HttpWebRequest)WebRequest.Create(new Uri(uri));
-                request.Method = "POST";
-                request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.ContentLength = content.Length;
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0";
-                request.Referer = uri;
-                request.KeepAlive = true;
-                request.CookieContainer = cookies;
-
-                /* write content to the stream */
-                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-                {
-                    streamWriter.Write(content);
-                }
-
-                return (HttpWebResponse)request.GetResponse();
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         public static IEnumerable<string> FindInPage(HttpWebResponse response, string lineRegex, string valueRegex)
@@ -223,7 +257,7 @@ namespace FederatedSearch.API.Common
 
             bool skipLineCheck = string.IsNullOrEmpty(lineRegex);
             string line = string.Empty;
-            using (var buffer = new BufferedStream(response.GetResponseStream()))
+            using (var buffer = new BufferedStream(GetResponseStream(response)))
             {
                 using (var responseStream = new StreamReader(buffer, Encoding.UTF8))
                 {
@@ -250,9 +284,16 @@ namespace FederatedSearch.API.Common
 
             FileProperties tempProps;
             var sourcePropertyValue = record.Metadata.GetType().GetProperty(sourceProperty).GetValue(record.Metadata, null).ToString();
-            foreach (var sourceValue in MlEncode.ListElementValues(sourcePropertyValue).ToList())
+            var sourceList = MlEncode.ListElementValues(sourcePropertyValue).ToList();
+            List<string> formatList = new List<string>();
+            if (sourceProperty != "Format")
             {
-                var value = sourceValue; /* new variable because we cannot assign to a foreach variable */
+                formatList = MlEncode.ListElementValues(record.Metadata.Format).ToList();
+            }
+
+            for (int i = 0; i < sourceList.Count; i++)
+            {
+                var value = sourceList[i];
                 if (!string.IsNullOrEmpty(value.Trim()))
                 {
                     tempProps = new FileProperties();
@@ -260,10 +301,13 @@ namespace FederatedSearch.API.Common
                     /* extract absolute URI and extension */
                     if (sourceProperty != "Format")
                     {
-                        var format = MlEncode.Element("format", record.Metadata.Format).FirstOrDefault();
-                        if (format != null && !string.IsNullOrEmpty(format.Value))
+                        if (formatList.Count > 1 && i < formatList.Count)
                         {
-                            tempProps.Extension = GetExtension(format.Value);
+                            tempProps.Extension = GetExtension(formatList[i]);
+                        }
+                        else if (formatList.Count == 1)
+                        {
+                            tempProps.Extension = GetExtension(formatList[0]);
                         }
                         else
                         {
@@ -278,7 +322,6 @@ namespace FederatedSearch.API.Common
                         {
                             tempProps.Extension = GetExtension(tmpSplit[0].Trim());
                             tempProps.AbsoluteUri = tmpSplit[1].Trim();
-                            value = tmpSplit[1].Trim();
                         }
                     }
 
@@ -289,13 +332,17 @@ namespace FederatedSearch.API.Common
                     {
                         fileName = string.Empty;
                     }
+                    if (MimeMapping.GetMimeMapping(fileName) == "application/octet-stream")
+                    {
+                        fileName += tempProps.Extension;
+                    }
                     tempProps.Name = fileName;
 
                     tempProps.AlternateName = record.Header.OAI_Identifier;
 
                     /* check if this is an URI */
                     Uri sourceUri;
-                    if (Uri.TryCreate(value, UriKind.Absolute, out sourceUri) &&
+                    if (Uri.TryCreate(tempProps.AbsoluteUri, UriKind.Absolute, out sourceUri) &&
                         (sourceUri.Scheme == Uri.UriSchemeHttp ||
                          sourceUri.Scheme == Uri.UriSchemeHttps ||
                          sourceUri.Scheme == Uri.UriSchemeFtp ||
@@ -328,13 +375,17 @@ namespace FederatedSearch.API.Common
                     /* first tier */
                     /* lets get page and cookies */
                     var response = properties.FirstHttpMethod.ToLower() == "get" ?
-                        GetResponse(fileProperties.AbsoluteUri, cookies) : PostResponse(fileProperties.AbsoluteUri, "", cookies);
+                        GetRequest(fileProperties.AbsoluteUri, cookies) : PostRequest(fileProperties.AbsoluteUri, "", cookies);
 
                     if (response != null)
                     {
-                        /* update because of possible redirection */
-                        fileProperties.AbsoluteUri = response.ResponseUri.ToString();
-                        fileProperties.Uri = response.ResponseUri;
+                        if (fileProperties.AbsoluteUri != response.ResponseUri.ToString() &&
+                            Properties.pageFileHarvestProperties.TryGetValue(response.ResponseUri.GetLeftPart(UriPartial.Authority), out properties))
+                        {
+                            fileProperties.AbsoluteUri = response.ResponseUri.ToString();
+                            fileProperties.Uri = response.ResponseUri;
+
+                        }
 
                         string filePaths = string.Empty;
 
@@ -350,7 +401,7 @@ namespace FederatedSearch.API.Common
                                         string completeUrl = HttpUtility.UrlDecode(tmpUri.ToString());
                                         completeUrl = HttpUtility.HtmlDecode(completeUrl);
                                         response = properties.SecondHttpMethod.ToLower() == "get" ?
-                                            GetResponse(completeUrl, cookies) : PostResponse(completeUrl, "", cookies);
+                                            GetRequest(completeUrl, cookies) : PostRequest(completeUrl, "", cookies);
                                     }
                                     else
                                     {
@@ -360,13 +411,13 @@ namespace FederatedSearch.API.Common
 
                                 case "wholeurl":
                                     response = properties.SecondHttpMethod.ToLower() == "get" ?
-                                        GetResponse(foundValue, cookies) : PostResponse(foundValue, "", cookies);
+                                        GetRequest(foundValue, cookies) : PostRequest(foundValue, "", cookies);
                                     break;
 
                                 case "key":
                                     response = properties.SecondHttpMethod.ToLower() == "get" ?
-                                        GetResponse(fileProperties.AbsoluteUri, cookies) :
-                                        PostResponse(fileProperties.AbsoluteUri, "key=" + foundValue, cookies);
+                                        GetRequest(fileProperties.AbsoluteUri, cookies) :
+                                        PostRequest(fileProperties.AbsoluteUri, "key=" + foundValue, cookies);
                                     break;
                             }
 
@@ -374,7 +425,7 @@ namespace FederatedSearch.API.Common
                             string filePath = CreateUniqueFileName(basePath, fileName);
 
                             /* try to download file */
-                            if(DownloadFile(filePath, response))
+                            if (DownloadFile(filePath, response))
                             {
                                 filePaths += filePath + "][";
                             }
@@ -447,7 +498,7 @@ namespace FederatedSearch.API.Common
                 foreach (var sourceItem in GetAllSources(record, dataProvider.FirstSource))
                 {
                     var fileName = string.IsNullOrEmpty(sourceItem.Name) ? sourceItem.AlternateName : sourceItem.Name;
-                    string filePath = CreateUniqueFileName(basePath, fileName + sourceItem.Extension);
+                    string filePath = CreateUniqueFileName(basePath, fileName);
 
                     if (DownloadFile(filePath, sourceItem.AbsoluteUri))
                     {
@@ -459,7 +510,7 @@ namespace FederatedSearch.API.Common
                     return files.Substring(0, files.Length - 2);
                 }
 
-                return FromPageOnly(record, basePath, 
+                return FromPageOnly(record, basePath,
                     string.IsNullOrEmpty(dataProvider.SecondSource) ? dataProvider.FirstSource : dataProvider.SecondSource);
             }
             catch (Exception e)

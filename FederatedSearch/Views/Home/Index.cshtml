@@ -14,7 +14,8 @@
 *      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
-@model FederatedSearch.Models.OAIModel
+@using FederatedSearch.Models;
+@*@model TestResponse*@
 @{
     ViewBag.Title = "OAI-PMH response time test";
     var options = new AjaxOptions()
@@ -23,20 +24,42 @@
         LoadingElementId = "waiting",
         LoadingElementDuration = 100,
         OnSuccess = "onSuccess"
-    };  
+    };
+
+    var dataProviders = ViewBag.DataProviders as IEnumerable<OAIDataProvider> ?? new List<OAIDataProvider>();
 }
 
-<h2>Test response times of DKUM and local repository</h2>
+<h2>Test response times</h2>
 <hr style="margin-top: 0px; padding-top: 0px;" />
+
+@if (dataProviders.Count() < 1)
+{
+    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", new { id = "Add" })</p>
+    <br />
+}
 
 @using (Ajax.BeginForm(options))
 {
     <div class="row">
         <div class="col-md-2">
-            <label class="control-label" for="verbSelect">Action: </label>
+            <label>Data provider:</label>
+        </div>
+        <div class="col-md-10">
+            <select id="dpList" name="BaseURL" class="form-control" @(dataProviders.Count() == 0 ? "disabled" : "") 
+                style="width: calc(100% - 25px); margin: 0 0 8px 25px;">
+                <option value="">Select data provider</option>
+                @foreach (var item in dataProviders)
+                {
+                    <option value="@(item.BaseURL)">@(item.RepositoryName)</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <label for="verbSelect">Action: </label>
             <div id="verbSelect" class="dropdown">
-                <button id="verbBtn" class="btn dropdown-toggle form-control oaiBtn" name="Verb" data-toggle="dropdown"
-                    @*style="width: calc(100% - 10px)"*@ value="Verb">
+                <button id="verbBtn" class="btn dropdown-toggle form-control oaiBtn" name="Verb" data-toggle="dropdown" value="Verb">
                     Verb
                     <b class="caret" style="margin-left: 5px;"></b>
                 </button>
@@ -53,28 +76,28 @@
 
         <div class="col-md-10">
             <div id="fromCnt" class="cnt">
-                <label for="from">From: </label>
-                <input id="from" name="From" type="datetime" class="form-control" oninput="changeQueryText()" />
+                <label>From: </label>
+                <input type="datetime" class="form-control" oninput="changeQueryText()" />
             </div>
             <div id="untilCnt" class="cnt">
-                <label for="until">Until: </label>
-                <input id="until" name="Until" type="datetime" class="form-control" oninput="changeQueryText()" />
+                <label>Until: </label>
+                <input type="datetime" class="form-control" oninput="changeQueryText()" />
             </div>
             <div id="metaPrefixCnt" class="cnt">
-                <label for="metadataPrefix">Metadata prefix: </label>
-                <input id="metadataPrefix" name="MetadataPrefix" type="text" class="form-control" oninput="changeQueryText()" />
+                <label>Metadata prefix: </label>
+                <input type="text" class="form-control" oninput="changeQueryText()" />
             </div>
             <div id="setCnt" class="cnt">
-                <label for="set">Set: </label>
-                <input id="set" name="Set" type="text" class="form-control" oninput="changeQueryText()" />
+                <label>Set: </label>
+                <input type="text" class="form-control" oninput="changeQueryText()" />
             </div>
             <div id="resTokenCnt" class="cnt">
-                <label for="resumptionToken">Resumption token: </label>
-                <input id="resumptionToken" name="ResumptionToken" type="text" class="form-control" oninput="changeQueryText()" />
+                <label>Resumption token: </label>
+                <input type="text" class="form-control" oninput="changeQueryText()" />
             </div>
             <div id="identifierCnt" class="cnt">
-                <label for="identifier">Identifier: </label>
-                <input id="identifier" name="Identifier" type="text" class="form-control" oninput="changeQueryText()" />
+                <label>Identifier: </label>
+                <input type="text" class="form-control" oninput="changeQueryText()" />
             </div>
         </div>
     </div>
@@ -84,10 +107,10 @@
 
     <div class="row">
         <div class="col-md-2">
-            <label for="urlQueryTxtBox">URL query: </label>
+            <label for="urlQuery">URL query: </label>
         </div>
         <div class="col-md-10">
-            <input id="urlQueryTxtBox" name="UrlQuery" type="text" class="form-control" style="margin-left: 25px; width: calc(100% - 25px);" />
+            <input id="urlQuery" name="UrlQuery" type="text" class="form-control" style="margin-left: 25px; width: calc(100% - 25px);" />
         </div>
     </div>
     <br />
@@ -100,7 +123,8 @@
     
     <div class="row">
         <div class="col-md-2">
-            <input id="startBtn" type="submit" value="Start" class="btn oaiBtn btn-default form-control" />
+            <input id="startBtn" type="submit" value="Start" class="btn oaiBtn btn-default form-control" 
+                @(dataProviders.Count() == 0 ? "disabled" : "") />
         </div>
         <div class="col-md-10">
             <div id="waiting" style="display: none; color: #66afe9; font-weight: bold">
@@ -108,16 +132,16 @@
             </div>
 
 
-            <div class="row-fluid" style="background-color: ButtonFace; width: calc(100% - 25px); margin-left: 25px;">
+            <div id="resultPanel" class="row-fluid" style="padding-left: 25px;">
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="row-fluid">
-                            <label for="dkumLabel">DKUM: </label>
-                            <label id="dkumLabel"></label>
+                            <label id="dp2Name" for="dp2Result"></label>
+                            <label id="dp2Result"></label>
                         </div>
                         <div class="row-fluid">
-                            <label for="localServiceLabel">Local service: </label>
-                            <label id="localServiceLabel"></label>
+                            <label for="dp1Result">Api: </label>
+                            <label id="dp1Result"></label>
                         </div>
                         <div class="row-fluid">
                             <label for="ratioLabel">Ratio: </label>
@@ -141,8 +165,9 @@
 <script type="text/javascript">
 
     function onSuccess(response) {
-        $("#dkumLabel").text(response.DkumResult + "s");
-        $("#localServiceLabel").text(response.LocalResult + "s");
+        $("#dp1Result").text(response.ApiResult + "s");
+        $("#dp2Name").text($('#dpList').find(":selected").text() + ": ");
+        $("#dp2Result").text(response.DataProviderResult + "s");
         $("#ratioLabel").text(response.Ratio + " : 1");
     }
 
@@ -162,13 +187,13 @@
         if (str[str.length - 1] === '&')
             str = str.substr(0, str.length - 1);
 
-        $('#urlQueryTxtBox').val(str);
+        $('#urlQuery').val(str);
     }
 
     function setVerbButton(verb) {
         $("#verbBtn").text(verb);
         $("#verbBtn").val(verb);
-        $("#verbBtn").append('<span class="caret" style="margin-left:5px;"></span>');
+        $("#verbBtn").append('<b class="caret" style="margin-left: 5px;"></b>');
     }
 
     function verbChanged(verb) {

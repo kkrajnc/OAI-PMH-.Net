@@ -34,41 +34,43 @@ namespace FederatedSearch.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
+            ViewBag.DataProviders = await OaiApiRestService.GetDataProviders(baseLocalUrl) ?? new List<OAIDataProvider>();
             return View();
         }
 
         [HttpPost]
-        public ActionResult Index(OAIModel model)
+        public ActionResult Index(string BaseURL, string UrlQuery)
         {
-            string localUrl = this.HttpContext.Request.Url.OriginalString + "api/oai?";
-            string dkumUrl = "http://dkum.uni-mb.si/oai/oai2.php?";
+            string apiUrl = Common.GetBaseApiUrl(this) + "api/oai?" + UrlQuery;
+            string dataProviderUrl = BaseURL + "?" + UrlQuery;
             Stopwatch stopWatch = new Stopwatch();
-            string localContent;
-            string dkumContent;
-            TimeSpan localTime;
-            TimeSpan dkumTime;
+            string apiContent;
+            string dataProviderContent;
+            TimeSpan apiTime;
+            TimeSpan dataProviderTime;
 
             using (HttpClient client = new HttpClient())
             {
                 stopWatch.Start();
-                dkumContent = client.GetStringAsync(dkumUrl + model.UrlQuery).Result;
+                dataProviderContent = client.GetStringAsync(dataProviderUrl).Result;
                 stopWatch.Stop();
-                dkumTime = stopWatch.Elapsed;
+                dataProviderTime = stopWatch.Elapsed;
 
                 stopWatch.Reset();
 
                 stopWatch.Start();
-                localContent = client.GetStringAsync(localUrl + model.UrlQuery).Result;
+                apiContent = client.GetStringAsync(apiUrl).Result;
                 stopWatch.Stop();
-                localTime = stopWatch.Elapsed;
+                apiTime = stopWatch.Elapsed;
             }
             return Json(new
             {
-                LocalResult = localTime.TotalSeconds,
-                DkumResult = dkumTime.TotalSeconds,
-                Ratio = ((int)(dkumTime.TotalMilliseconds / localTime.TotalMilliseconds)).ToString()
+                ApiResult = apiTime.TotalSeconds,
+                DataProviderResult = dataProviderTime.TotalSeconds,
+                Ratio = ((int)(dataProviderTime.TotalMilliseconds / apiTime.TotalMilliseconds)).ToString()
             });
         }
 
@@ -83,7 +85,7 @@ namespace FederatedSearch.Controllers
             string search = null,
             int page = 0)
         {
-            string baseUrl = Common.GetBaseUrl(this);
+            string baseUrl = Common.GetBaseApiUrl(this);
             if (string.IsNullOrEmpty(id))
             {
                 /* add query params */

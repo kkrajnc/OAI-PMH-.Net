@@ -191,8 +191,15 @@ namespace FederatedSearch.API.Common
 
         public static IEnumerable<string> ListElementValues(string value)
         {
-            return from e in Element("el", value)
-                   select e.Value;
+            try
+            {
+                return from e in Element("el", value)
+                       select e.Value;
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
         }
     }
 }

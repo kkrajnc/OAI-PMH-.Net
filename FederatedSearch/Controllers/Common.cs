@@ -125,7 +125,7 @@ namespace FederatedSearch.Controllers
         }
 
         /* ---------------------------------------------------------*/
-        public static string GetBaseUrl(Controller controller)
+        public static string GetBaseApiUrl(Controller controller)
         {
             return GetBaseUrl(controller.HttpContext);
         }

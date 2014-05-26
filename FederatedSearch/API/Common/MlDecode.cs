@@ -84,13 +84,19 @@ namespace FederatedSearch.API.Common
 
             return new Header()
             {
-                OAI_Identifier = header.Element(MlNamespaces.oaiNs + "identifier").Value,
                 Datestamp = SafeDateTime(header.Element(MlNamespaces.oaiNs + "datestamp")),
+                Deleted = new Func<bool>(() =>
+                {
+                    var xa = header.Attribute("status");
+                    return xa == null ? false : xa.Value == "deleted";
+                })(),
+                EnterDate = DateTime.UtcNow,
                 IsDatestampDateTime = new Func<bool>(() =>
                 {
                     XElement xe = header.Element(MlNamespaces.oaiNs + "datestamp");
                     return xe == null ? false : xe.Value.Length == 20;
                 })(),
+                OAI_Identifier = header.Element(MlNamespaces.oaiNs + "identifier").Value,
                 OAI_Set = new Func<string>(() =>
                 {
                     StringBuilder sb = new StringBuilder();
@@ -99,9 +105,7 @@ namespace FederatedSearch.API.Common
                         sb.Append(set.Value + ";");
                     }
                     return sb.ToString();
-                })(),
-                Deleted = false,
-                EnterDate = DateTime.UtcNow
+                })()
             };
         }
         public static async Task<Header> HeaderAsync(XElement header)

@@ -391,7 +391,11 @@ namespace FederatedSearch.API
                         List<RecordQueryResult> records = new List<RecordQueryResult>();
                         foreach (var record in listRecords.Elements(MlNamespaces.oaiNs + "record"))
                         {
-                            records.Add(ParseRecordAsync(record, metadataPrefix).Result);
+                            var rec = ParseRecordAsync(record, metadataPrefix).Result;
+                            if (!rec.Header.Deleted)
+                            {
+                                records.Add(rec);
+                            }
                         }
                         int itemsPerPage = records.Count;
 
@@ -404,8 +408,11 @@ namespace FederatedSearch.API
                                 {
                                     /* update timestamp of last harvesting */
                                     context.OAIDataProvider.Attach(dataProvider);
-                                    dataProvider.LastHarvesting = harvestDate;
-                                    context.Entry(dataProvider).State = EntityState.Modified;
+                                    if (!isList)
+                                    {
+                                        dataProvider.LastHarvesting = harvestDate;
+                                        context.Entry(dataProvider).State = EntityState.Modified;
+                                    }
 
                                     DeDuplicate.Records(
                                         records,

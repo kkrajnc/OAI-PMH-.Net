@@ -46,7 +46,7 @@ namespace FederatedSearch.Controllers
                         return View("DataProviderAdd");
                     case "list":
                     default:
-                        var baseLocalUrl = Common.GetBaseUrl(this);
+                        var baseLocalUrl = Common.GetBaseApiUrl(this);
                         var repositoryList = await OaiApiRestService.GetDataProviders(baseLocalUrl) ?? new List<OAIDataProvider>();
                         return View("DataProviderList", repositoryList);
                 }
@@ -63,7 +63,7 @@ namespace FederatedSearch.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                var baseLocalUrl = Common.GetBaseUrl(this);
+                var baseLocalUrl = Common.GetBaseApiUrl(this);
                 switch (id.Trim().ToLower())
                 {
                     case "addorupdate":
@@ -106,7 +106,7 @@ namespace FederatedSearch.Controllers
 
         public async Task<ActionResult> Harvest(string id)
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
             var repositoryList = await OaiApiRestService.GetDataProviders(baseLocalUrl);
 
             if (!string.IsNullOrEmpty(id))
@@ -155,7 +155,7 @@ namespace FederatedSearch.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                var baseLocalUrl = Common.GetBaseUrl(this);
+                var baseLocalUrl = Common.GetBaseApiUrl(this);
                 switch (id.Trim().ToLower())
                 {
                     case "start":
@@ -215,7 +215,7 @@ namespace FederatedSearch.Controllers
 
         public async Task<ActionResult> PageFileHarvestProperties()
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
             var pageFileHarvestProps = await OaiApiRestService.GetPageFileHarvestProperties(baseLocalUrl);
 
             return View("PageFileHarvestProperties", pageFileHarvestProps);
@@ -229,7 +229,7 @@ namespace FederatedSearch.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                var baseLocalUrl = Common.GetBaseUrl(this);
+                var baseLocalUrl = Common.GetBaseApiUrl(this);
                 switch (id.Trim().ToLower())
                 {
                     case "addorupdate":
@@ -262,7 +262,7 @@ namespace FederatedSearch.Controllers
 
         public async Task<ActionResult> DeleteMetadata()
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
             var repositoryList = await OaiApiRestService.GetDataProviders(baseLocalUrl);
 
             var settings = RemodelDataProvidersToProperties(repositoryList).ToList();
@@ -273,7 +273,7 @@ namespace FederatedSearch.Controllers
         public async Task<ActionResult> DeleteMetadata(
             List<DataProviderProperties> repositoryList = null)
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
             if (repositoryList != null && repositoryList.Count > 0)
             {
                 bool deleteResult = await OaiApiRestService.DeleteMetadata(baseLocalUrl, repositoryList);
@@ -289,7 +289,7 @@ namespace FederatedSearch.Controllers
 
         public async Task<ActionResult> Properties()
         {
-            var baseLocalUrl = Common.GetBaseUrl(this);
+            var baseLocalUrl = Common.GetBaseApiUrl(this);
             var sectionList = await OaiApiRestService.GetPropertySections(baseLocalUrl);
             var propertyList = await OaiApiRestService.GetProperties(baseLocalUrl, null);
 
@@ -326,7 +326,7 @@ namespace FederatedSearch.Controllers
         {
             if (!string.IsNullOrEmpty(id))
             {
-                var baseLocalUrl = Common.GetBaseUrl(this);
+                var baseLocalUrl = Common.GetBaseApiUrl(this);
                 switch (id.Trim().ToLower())
                 {
                     case "addorupdate":
