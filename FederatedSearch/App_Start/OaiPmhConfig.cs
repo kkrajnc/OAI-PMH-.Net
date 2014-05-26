@@ -42,7 +42,7 @@ namespace FederatedSearch
             /* Set default settings */
             /* Identify properties */
             props["RepositoryName"] = new Property() { Key = "RepositoryName", Value = "Test repository", Section = "ip" };
-            props["BaseURL"] = new Property() { Key = "BaseURL", Value = "http://localhost:1793/api/oai", Section = "ip" };
+            props["BaseURL"] = new Property() { Key = "BaseURL", Value = "http://localhost:1777/api/oai", Section = "ip" };
             props["ProtocolVersion"] = new Property() { Key = "ProtocolVersion", Value = "2.0", Section = "ip" };
             props["EarliestDatestamp"] = new Property() { Key = "EarliestDatestamp", Value = SqlDateTime.MinValue.Value.ToString(Enums.Granularity.DateTime), Section = "ip" };
             props["DeletedRecord"] = new Property() { Key = "DeletedRecord", Value = Enums.DeletedRecords.No, Section = "ip" };
@@ -83,24 +83,8 @@ namespace FederatedSearch
                 Value = "ip=Identify;" +
                         "dpp=Dataprovider;" +
                         "hp=Harvester;" +
-                        "pfhp=Page fileharvester;" +
-                        "tp=Test properties",
+                        "pfhp=Page fileharvester;",
                 Section = "hp"
-            };
-            /* Page file harvester properties */
-            props["http://dkum.uni-mb.si"] = new Property()
-            {
-                Key = "http://dkum.uni-mb.si",
-                Value = JsonConvert.SerializeObject(new PageFileHarvestProperties()
-                    {
-                        BaseUri = "http://dkum.uni-mb.si",
-                        FirstHttpMethod = "GET",
-                        SecondHttpMethod = "POST",
-                        LineRegex = @"<input type=""hidden"" name=""key"" value=""[a-zA-Z0-9]+"" />",
-                        ValueRegex = @"(?<=\bvalue="")[^""]*",
-                        SecondTierValueOption = "Key"
-                    }),
-                Section = "pfhp"
             };
 
             /* Other ... */
