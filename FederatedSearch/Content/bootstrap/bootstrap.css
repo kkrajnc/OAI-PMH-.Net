@@ -7050,10 +7050,10 @@ button.close {
 }
 
 
-/*input {
-    width: 100%;
-    min-width: 100px;
-}*/
+.properties-textearea {
+    height: 34px !important;
+    min-height: 34px;
+}
 
 .oaiBtn {
     background-color: ButtonFace;

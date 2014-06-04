@@ -50,15 +50,9 @@ namespace FederatedSearch.API.Common
 
         /* Illegal syntax */
         public static XElement badFromArgument = MlEncode.Error("badArgument",
-            "The request includes a 'from' value that has an illegal syntax.");
+            "The request includes a 'from' value that has an illegal syntax / granularity.");
         public static XElement badUntilArgument = MlEncode.Error("badArgument",
-            "The request includes a 'until' value that has an illegal syntax.");
-
-        /* Unsupported granularity */
-        public static XElement badFromGranularityArgument = MlEncode.Error("badArgument",
-            "The request includes a 'from' value that has unsupported granularity.");
-        public static XElement badUntilGranularityArgument = MlEncode.Error("badArgument",
-            "The request includes a 'until' value that has unsupported granularity.");
+            "The request includes a 'until' value that has an illegal syntax / granularity.");
 
         /* Resumption */
         public static XElement badResumptionArgumentOnly = MlEncode.Error("badArgument",
@@ -98,5 +92,8 @@ namespace FederatedSearch.API.Common
 
         public static XElement noMetadataFormats = MlEncode.Error("noMetadataFormats",
             "There are no metadata formats available for the specified item.");
+
+        public static XElement badFromAndUntilArgument = MlEncode.Error("badArgument",
+            "The 'from' argument must be less than or equal to the 'until' argument.");
     }
 }

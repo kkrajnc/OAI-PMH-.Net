@@ -79,10 +79,10 @@
                             <tr></tr>
                             <tr>
                                 <td>
-                                    <input type="text" class="form-control" placeholder="Name" />
+                                    <textarea class="properties-textearea form-control" placeholder="Name" rows="1"></textarea>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" placeholder="Value" />
+                                    <textarea class="properties-textearea form-control" placeholder="Value" rows="1"></textarea>
                                 </td>
                                 <td></td>
                                 <td>
@@ -145,7 +145,7 @@
                     '</div></td></tr>');
                 if (data.section != data.oldSection) {
                     var tds = $('#propertiesTable' + data.oldSection + ' > tfoot > tr > td');
-                    tds.children('input[type="text"]').val('');
+                    tds.children('textarea').val('');
                     tds.children('select').children('option').each(function () {
                         if ($(this).val() == data.oldSection) {
                             $(this).prop('selected', 'selected');
@@ -153,7 +153,7 @@
                     });
                 }
                 else {
-                    $('#propertiesTable' + data.section + ' > tfoot > tr > td').children('input[type="text"]').val('');
+                    $('#propertiesTable' + data.section + ' > tfoot > tr > td').children('textarea').val('');
                 }
                 break;
             case 'failure':
@@ -166,8 +166,8 @@
         jsonRequest(
             '@baseLocalUrl/Repository/Properties/AddOrUpdate',
             JSON.stringify({
-                name: row.children('td:nth-child(1)').children('input[type="text"]').val(),
-                value: row.children('td:nth-child(2)').children('input[type="text"]').val(),
+                name: row.children('td:nth-child(1)').children('textarea').val(),
+                value: row.children('td:nth-child(2)').children('textarea').val(),
                 section: row.children('td:nth-child(3)').children('select').find(":selected").val(),
                 oldSection: row.children('td:nth-child(3)').children('select').data('oldSection')
             })
@@ -205,8 +205,9 @@
                 $(button).text('Save');
                 $(button).siblings().text('Cancel');
                 var currentValue = row.children('td:nth-child(2)').text().trim();
-                var txtBox = $('<input>').appendTo(row.children('td:nth-child(2)').empty().prop('colspan', '').after('<td></td>'));
-                txtBox.prop('type', 'text');
+                var txtBox = $('<textarea>').appendTo(row.children('td:nth-child(2)').empty().prop('colspan', '').after('<td></td>'));
+                txtBox.prop('placeholder', 'Value');
+                txtBox.addClass('properties-textearea');
                 txtBox.addClass('form-control');
                 txtBox.val(currentValue);
                 txtBox.data('currentValue', currentValue);
@@ -219,7 +220,7 @@
                     '@baseLocalUrl/Repository/Properties/AddOrUpdate',
                     JSON.stringify({
                         name: row.children('td:nth-child(1)').text().trim(),
-                        value: row.children('td:nth-child(2)').children('input[type="text"]').val(),
+                        value: row.children('td:nth-child(2)').children('textarea').val(),
                         section: row.children('td:nth-child(3)').children('select').find(":selected").val(),
                         oldSection: row.children('td:nth-child(3)').children('select').data('oldSection')
                     })
@@ -251,7 +252,7 @@
                     break;
                 case 'Cancel':
                     var row = getButtonRow(button);
-                    var currentValue = row.children('td:nth-child(2)').children('input[type="text"]').data('currentValue');
+                    var currentValue = row.children('td:nth-child(2)').children('textarea').data('currentValue');
                     row.children('td:nth-child(2)').html(currentValue).prop('colspan', 2);
                     row.children('td:nth-child(3)').remove();
                     $(button).siblings().text('Edit');

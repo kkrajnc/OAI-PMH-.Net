@@ -37,14 +37,6 @@ namespace FederatedSearch.API
             string resumptionToken = null,
             string identifier = null)
         {
-            /*string verb = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["verb"];
-            string from = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["from"];
-            string until = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["until"];
-            string metadataPrefix = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["metadataPrefix"];
-            string set = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["set"];
-            string resumptionToken = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["resumptionToken"];
-            string identifier = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.QueryParameters["identifier"];*/
-
             bool isVerb = !String.IsNullOrEmpty(verb);
             bool isFrom = !String.IsNullOrEmpty(from);
             bool isUntil = !String.IsNullOrEmpty(until);
@@ -258,26 +250,20 @@ namespace FederatedSearch.API
             /* FROM */
             bool isFrom = !String.IsNullOrEmpty(from);
             fromDate = MlDecode.SafeDateTime(from);
-            if (isFrom && fromDate != null)
+            if (isFrom && fromDate == null)
             {
                 errors.Add(MlErrors.badFromArgument);
-            }
-            if (isFrom && fromDate != DateTime.MinValue &&
-                from.Length != (Properties.granularity == Enums.Granularity.Date ? 10 : 20))
-            {
-                errors.Add(MlErrors.badFromGranularityArgument);
             }
             /* UNTIL */
             bool isUntil = !String.IsNullOrEmpty(until);
             untilDate = MlDecode.SafeDateTime(until);
-            if (isUntil && untilDate != null)
+            if (isUntil && untilDate == null)
             {
                 errors.Add(MlErrors.badUntilArgument);
             }
-            if (isUntil && untilDate != DateTime.MinValue &&
-                until.Length != (Properties.granularity == Enums.Granularity.Date ? 10 : 20))
+            if (isFrom && isUntil && fromDate > untilDate)
             {
-                errors.Add(MlErrors.badUntilGranularityArgument);
+                errors.Add(MlErrors.badFromAndUntilArgument);
             }
             /* METADATA PREFIX */
             bool isPrefixOk = !String.IsNullOrEmpty(metadataPrefix);
@@ -358,7 +344,7 @@ namespace FederatedSearch.API
                                    where om.ObjectType == Enums.ObjectType.OAIRecord
                                    where om.MetadataType == Enums.MetadataType.Metadata
                                    where (!isFrom || rec.Datestamp.Value >= fromDate)
-                                   where (!isUntil || rec.Datestamp.Value >= untilDate)
+                                   where (!isUntil || rec.Datestamp.Value <= untilDate)
                                    where (md.MdFormat & formatNum) != 0
                                    orderby rec.Datestamp
                                    select rec;
@@ -414,7 +400,6 @@ namespace FederatedSearch.API
                                 join mdt in context.Metadata on omd.MetadataId equals mdt.MetadataId
                                 group new { OmdMetaType = omd.MetadataType, OaiMetaData = mdt } by rec into grp
                                 select grp).ToList();
-                /* NOTE: must be seperated query (ToList doesn't work inside) */
 
                 /* distribute data into logical units */
                 records = (from grp in recGroup
