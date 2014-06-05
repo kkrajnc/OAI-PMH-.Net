@@ -42,8 +42,15 @@ namespace FederatedSearch.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(string BaseURL, string UrlQuery)
+        public ActionResult Index(FormCollection form)
         {
+            string BaseURL = form["BaseURL"];
+            string UrlQuery = form["UrlQuery"];
+            if (string.IsNullOrEmpty(BaseURL) || string.IsNullOrEmpty(UrlQuery))
+            {
+                return null;
+            }
+
             string apiUrl = Common.GetBaseApiUrl(this) + "api/oai?" + UrlQuery;
             string dataProviderUrl = BaseURL + "?" + UrlQuery;
             Stopwatch stopWatch = new Stopwatch();
@@ -63,6 +70,7 @@ namespace FederatedSearch.Controllers
 
                 stopWatch.Start();
                 apiContent = client.GetStringAsync(apiUrl).Result;
+                System.Threading.Thread.Sleep(3000);
                 stopWatch.Stop();
                 apiTime = stopWatch.Elapsed;
             }
@@ -70,7 +78,7 @@ namespace FederatedSearch.Controllers
             {
                 ApiResult = apiTime.TotalSeconds,
                 DataProviderResult = dataProviderTime.TotalSeconds,
-                Ratio = ((int)(dataProviderTime.TotalMilliseconds / apiTime.TotalMilliseconds)).ToString()
+                Ratio = ((int)Math.Ceiling(dataProviderTime.TotalMilliseconds / apiTime.TotalMilliseconds)).ToString()
             });
         }
 

@@ -76,27 +76,27 @@
         <div class="col-md-10">
             <div id="fromCnt" class="cnt">
                 <label>From: </label>
-                <input type="datetime" class="form-control" oninput="changeQueryText()" />
+                <input type="datetime" class="form-control" oninput="changeQueryText()" data-name="from" />
             </div>
             <div id="untilCnt" class="cnt">
                 <label>Until: </label>
-                <input type="datetime" class="form-control" oninput="changeQueryText()" />
+                <input type="datetime" class="form-control" oninput="changeQueryText()" data-name="until" />
             </div>
             <div id="metaPrefixCnt" class="cnt">
                 <label>Metadata prefix: </label>
-                <input type="text" class="form-control" oninput="changeQueryText()" />
+                <input type="text" class="form-control" oninput="changeQueryText()" data-name="metadataPrefix" />
             </div>
             <div id="setCnt" class="cnt">
                 <label>Set: </label>
-                <input type="text" class="form-control" oninput="changeQueryText()" />
+                <input type="text" class="form-control" oninput="changeQueryText()" data-name="set" />
             </div>
             <div id="resTokenCnt" class="cnt">
                 <label>Resumption token: </label>
-                <input type="text" class="form-control" oninput="changeQueryText()" />
+                <input type="text" class="form-control" oninput="changeQueryText()" data-name="resumptionToken" />
             </div>
             <div id="identifierCnt" class="cnt">
                 <label>Identifier: </label>
-                <input type="text" class="form-control" oninput="changeQueryText()" />
+                <input type="text" class="form-control" oninput="changeQueryText()" data-name="identifier" />
             </div>
         </div>
     </div>
@@ -178,9 +178,9 @@
 
         $('.cnt').each(function (index, object) {
             var obj = $(object);
-            var child = obj.children()[1];
-            if (!obj.hasClass('hide') && child.value !== '')
-                str += child.id + "=" + child.value + '&';
+            var child = $(obj.children()[1]);
+            if (!obj.hasClass('hide') && child.val() !== '')
+                str += child.data('name') + "=" + child.val() + '&';
         });
 
         if (str[str.length - 1] === '&')
