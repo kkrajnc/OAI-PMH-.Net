@@ -88,7 +88,10 @@ namespace FederatedSearch
             };
 
             /* Other ... */
-            props.SetSchemaSet(MlNamespaces.oaiNs.ToString(), Directory.GetCurrentDirectory() + "\\oaiSchema.xsd");
+            if (File.Exists(Directory.GetCurrentDirectory() + "\\oaiSchema.xsd"))
+            {
+                props.SetSchemaSet(MlNamespaces.oaiNs.ToString(), Directory.GetCurrentDirectory() + "\\oaiSchema.xsd");
+            }
 
             Properties.UpdateFromDatabase();
 

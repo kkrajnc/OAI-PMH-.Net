@@ -33,7 +33,7 @@
 
 @if (dataProviders.Count() < 1)
 {
-    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", new { id = "Add" })</p>
+    <p>Dataprovider list is empty. @Html.ActionLink("Add provider", "DataProvider", "Repository", new { id = "Add" }, null)</p>
     <br />
 }
 

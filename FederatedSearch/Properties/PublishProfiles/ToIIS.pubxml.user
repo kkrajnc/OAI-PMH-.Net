@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit http://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>C:\inetpub\wwwroot\federatedSearch</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/Antlr3.Runtime.dll">
+      <publishTime>05/06/2014 21:14:19</publishTime>
+    </File>
+    <File Include="bin/de/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/de/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/de/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.AspNet.dll">
+      <publishTime>05/06/2014 21:12:10</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.Core.dll">
+      <publishTime>05/06/2014 21:12:14</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.OAuth.Consumer.dll">
+      <publishTime>05/06/2014 21:12:16</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.OAuth.dll">
+      <publishTime>05/06/2014 21:12:19</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.OpenId.dll">
+      <publishTime>05/06/2014 21:12:25</publishTime>
+    </File>
+    <File Include="bin/DotNetOpenAuth.OpenId.RelyingParty.dll">
+      <publishTime>05/06/2014 21:12:28</publishTime>
+    </File>
+    <File Include="bin/EntityFramework.dll">
+      <publishTime>05/06/2014 21:12:35</publishTime>
+    </File>
+    <File Include="bin/es/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/es/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/es/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/FederatedSearch.dll">
+      <publishTime>08/06/2014 19:43:03</publishTime>
+    </File>
+    <File Include="bin/fr/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/fr/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/fr/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/it/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/it/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/it/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/ja/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/ja/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/ja/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/ko/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/ko/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/ko/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Data.Edm.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Data.OData.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Infrastructure.dll">
+      <publishTime>05/06/2014 21:13:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Mvc.FixedDisplayModes.dll">
+      <publishTime>05/06/2014 21:12:58</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.WebPages.OAuth.dll">
+      <publishTime>05/06/2014 21:13:19</publishTime>
+    </File>
+    <File Include="bin/Mono.Math.dll">
+      <publishTime>05/06/2014 21:12:25</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>05/06/2014 21:14:09</publishTime>
+    </File>
+    <File Include="bin/Org.Mentalis.Security.Cryptography.dll">
+      <publishTime>05/06/2014 21:12:25</publishTime>
+    </File>
+    <File Include="bin/ru/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/ru/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/ru/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>05/06/2014 21:13:06</publishTime>
+    </File>
+    <File Include="bin/System.Spatial.dll">
+      <publishTime>05/06/2014 21:14:13</publishTime>
+    </File>
+    <File Include="bin/System.Web.Helpers.dll">
+      <publishTime>05/06/2014 21:13:16</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>05/06/2014 21:13:08</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.OData.dll">
+      <publishTime>05/06/2014 21:13:12</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.WebHost.dll">
+      <publishTime>05/06/2014 21:13:13</publishTime>
+    </File>
+    <File Include="bin/System.Web.Mvc.dll">
+      <publishTime>05/06/2014 21:12:56</publishTime>
+    </File>
+    <File Include="bin/System.Web.Optimization.dll">
+      <publishTime>05/06/2014 21:13:02</publishTime>
+    </File>
+    <File Include="bin/System.Web.Razor.dll">
+      <publishTime>05/06/2014 21:13:00</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Deployment.dll">
+      <publishTime>05/06/2014 21:13:16</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.dll">
+      <publishTime>05/06/2014 21:13:16</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Razor.dll">
+      <publishTime>05/06/2014 21:13:16</publishTime>
+    </File>
+    <File Include="bin/Web.config">
+      <publishTime>08/06/2014 20:06:49</publishTime>
+    </File>
+    <File Include="bin/Web.Debug.config">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="bin/Web.Release.config">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="bin/WebGrease.dll">
+      <publishTime>05/06/2014 21:14:19</publishTime>
+    </File>
+    <File Include="bin/WebMatrix.Data.dll">
+      <publishTime>05/06/2014 21:13:18</publishTime>
+    </File>
+    <File Include="bin/WebMatrix.WebData.dll">
+      <publishTime>05/06/2014 21:13:21</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:14</publishTime>
+    </File>
+    <File Include="bin/zh-Hant/Microsoft.Data.Edm.resources.dll">
+      <publishTime>05/06/2014 21:13:30</publishTime>
+    </File>
+    <File Include="bin/zh-Hant/Microsoft.Data.OData.resources.dll">
+      <publishTime>05/06/2014 21:13:46</publishTime>
+    </File>
+    <File Include="bin/zh-Hant/System.Spatial.resources.dll">
+      <publishTime>05/06/2014 21:14:14</publishTime>
+    </File>
+    <File Include="Content/bootstrap/bootstrap-datetimepicker.min.css">
+      <publishTime>03/30/2014 17:52:46</publishTime>
+    </File>
+    <File Include="Content/bootstrap/bootstrap.css">
+      <publishTime>06/04/2014 14:46:46</publishTime>
+    </File>
+    <File Include="Content/bootstrap/bootstrap.min.css">
+      <publishTime>08/06/2013 11:56:24</publishTime>
+    </File>
+    <File Include="favicon.ico">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Global.asax">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>05/25/2014 15:50:35</publishTime>
+    </File>
+    <File Include="Properties/DataSources/System.Xml.XmlElement.datasource">
+      <publishTime>02/06/2014 13:57:14</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap/bootstrap-datetimepicker.js">
+      <publishTime>03/30/2014 16:06:36</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap/bootstrap-datetimepicker.min.js">
+      <publishTime>03/30/2014 16:09:37</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap/bootstrap.min.js">
+      <publishTime>08/06/2013 11:56:24</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap/hoverMenu.js">
+      <publishTime>05/18/2014 20:24:01</publishTime>
+    </File>
+    <File Include="Scripts/CommonEdit.js">
+      <publishTime>05/13/2014 17:30:31</publishTime>
+    </File>
+    <File Include="Scripts/CommonOAI.js">
+      <publishTime>05/18/2014 20:24:01</publishTime>
+    </File>
+    <File Include="Scripts/jquery-1.8.2.js">
+      <publishTime>08/11/2013 16:08:59</publishTime>
+    </File>
+    <File Include="Scripts/jquery-1.8.2.min.js">
+      <publishTime>08/11/2013 16:08:59</publishTime>
+    </File>
+    <File Include="Scripts/jquery-ui-1.8.24.js">
+      <publishTime>08/11/2013 16:09:00</publishTime>
+    </File>
+    <File Include="Scripts/jquery-ui-1.8.24.min.js">
+      <publishTime>08/11/2013 16:09:00</publishTime>
+    </File>
+    <File Include="Scripts/jquery.unobtrusive-ajax.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Scripts/jquery.unobtrusive-ajax.min.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.js">
+      <publishTime>08/11/2013 16:09:00</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.min.js">
+      <publishTime>08/11/2013 16:09:00</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.unobtrusive.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.unobtrusive.min.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Scripts/modernizr-2.6.2.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Scripts/_references.js">
+      <publishTime>08/11/2013 16:09:01</publishTime>
+    </File>
+    <File Include="Views/Account/ExternalLoginConfirmation.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/ExternalLoginFailure.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/Login.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/Manage.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/Register.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/_ChangePasswordPartial.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/_ExternalLoginsListPartial.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/_RemoveExternalLoginsPartial.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Account/_SetPasswordPartial.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Home/Index.cshtml">
+      <publishTime>08/06/2014 19:41:26</publishTime>
+    </File>
+    <File Include="Views/Home/MetadataItem.cshtml">
+      <publishTime>05/19/2014 19:28:02</publishTime>
+    </File>
+    <File Include="Views/Home/MetadataList.cshtml">
+      <publishTime>08/06/2014 20:04:03</publishTime>
+    </File>
+    <File Include="Views/Home/Test.cshtml">
+      <publishTime>05/20/2014 15:25:43</publishTime>
+    </File>
+    <File Include="Views/Repository/DataProviderAdd.cshtml">
+      <publishTime>05/18/2014 20:24:01</publishTime>
+    </File>
+    <File Include="Views/Repository/DataProviderList.cshtml">
+      <publishTime>06/05/2014 12:00:33</publishTime>
+    </File>
+    <File Include="Views/Repository/DeleteMetadata.cshtml">
+      <publishTime>08/06/2014 19:36:17</publishTime>
+    </File>
+    <File Include="Views/Repository/Harvest.cshtml">
+      <publishTime>08/06/2014 19:35:49</publishTime>
+    </File>
+    <File Include="Views/Repository/HarvestRecord.cshtml">
+      <publishTime>08/06/2014 19:35:33</publishTime>
+    </File>
+    <File Include="Views/Repository/PageFileHarvestProperties.cshtml">
+      <publishTime>05/19/2014 18:54:00</publishTime>
+    </File>
+    <File Include="Views/Repository/Properties.cshtml">
+      <publishTime>06/04/2014 14:45:49</publishTime>
+    </File>
+    <File Include="Views/Shared/Error.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Shared/_Layout.cshtml">
+      <publishTime>05/18/2014 20:24:01</publishTime>
+    </File>
+    <File Include="Views/Shared/_LoginPartial.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/Web.config">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Views/_ViewStart.cshtml">
+      <publishTime>08/11/2013 16:08:57</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>08/06/2014 20:06:49</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

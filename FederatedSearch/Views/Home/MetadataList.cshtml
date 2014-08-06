@@ -24,7 +24,14 @@
 <h2>
     @if(string.IsNullOrEmpty(Request.QueryString["search"]))
     {
-        @Html.Raw("Metadata list")
+        if (Model == null || Model.Count() == 0)
+        {
+            @Html.Raw("Metadata list is empty")
+        }
+        else
+        {
+            @Html.Raw("Metadata list")
+        }
     }
     else if(Model != null && Model.Count() > 0)
     {

@@ -370,7 +370,7 @@ namespace FederatedSearch.API
 
                 /* we validate if it's enabled */
                 bool errors = false;
-                if (Properties.validateXml)
+                if (Properties.validateXml && Properties.schemas.Count > 0)
                 {
                     List<string> eMsgs = new List<string>();
                     xd.Validate(Properties.schemas, (o, e) => { errors = true; eMsgs.Add(e.Message); });
