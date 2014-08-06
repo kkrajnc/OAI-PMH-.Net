@@ -516,6 +516,7 @@ namespace FederatedSearch.API
 
             XElement listMetadataFormats = new XElement("ListMetadataFormats",
                 from mf in metadataFormats
+                where mf.IsForList
                 select new XElement("metadataFormat",
                     new XElement("metadataPrefix", mf.Prefix),
                     new XElement("schema", mf.Schema),
