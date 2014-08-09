@@ -124,9 +124,17 @@ namespace FederatedSearch.Controllers
                           takeParam,
                           resultCount);
 
-                    metaList = results.ToList();
-                    listCounter = metaList.Last().HeaderId; /* we saved the number of items in last row */
-                    metaList.Remove(metaList.Last());
+                    try
+                    {
+                        metaList = results.ToList();
+                        listCounter = metaList.Last().HeaderId; /* we saved the number of items in last row */
+                        metaList.Remove(metaList.Last());
+                    }
+                    catch (SqlException)
+                    {
+                        metaList = new List<MetaSearchResult>();
+                        listCounter = -1;
+                    }
                 }
 
                 return Common.JsonResponse(new { ResultCount = listCounter, List = metaList });

@@ -102,7 +102,7 @@ namespace FederatedSearch.Controllers
                 ViewBag.PageNum = page;
 
                 /* get metadata and result count */
-                MetaList ml = await OaiApiRestService.GetMetadata(baseUrl, ipp, search, page);
+                MetaList ml = await OaiApiRestService.GetMetadata(baseUrl, ipp, search, page) ?? new MetaList();
                 ViewBag.ResultCount = ml.ResultCount;
 
                 return View("MetadataList", ml.List);

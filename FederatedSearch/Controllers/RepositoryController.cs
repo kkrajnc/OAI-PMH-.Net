@@ -131,7 +131,7 @@ namespace FederatedSearch.Controllers
             }
 
             var settings = RemodelDataProvidersToProperties(repositoryList).ToList();
-            var harvestStats = await OaiApiRestService.HarvestingStats(baseLocalUrl);
+            var harvestStats = await OaiApiRestService.HarvestingStats(baseLocalUrl) ?? new List<DataProviderHarvestStats>();
             foreach (var stat in harvestStats)
             {
                 var tmp = settings.FirstOrDefault(s => s.OAIDataProviderId == stat.OAIDataProviderId);
@@ -308,9 +308,12 @@ namespace FederatedSearch.Controllers
             else
             {
                 var tmpPropsList = new List<Property>();
-                tmpPropsList.Add(new Property() { Key = "PropertySections", Value = "", Section = "hp" });
+                tmpPropsList.Add(new Property() { Key = "PropertySections", Value = "hp=Harvester;", Section = "hp" });
                 propertyGroups = new Dictionary<string, List<Property>>();
-                propertyGroups.Add("Harvester", tmpPropsList);
+                propertyGroups.Add("hp", tmpPropsList);
+                sectionList = new Dictionary<string, string>();
+                sectionList.Add("hp", "Harvester");
+                ViewBag.SectionList = sectionList;
             }
 
             return View("Properties", propertyGroups);

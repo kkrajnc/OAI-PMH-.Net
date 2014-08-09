@@ -131,8 +131,7 @@ namespace FederatedSearch.Controllers
         }
         public static string GetBaseUrl(HttpContextBase httpContext)
         {
-            var pathAndQuery = httpContext.Request.Url.PathAndQuery;
-            return httpContext.Request.Url.AbsoluteUri.Replace(pathAndQuery, "/");
+            return httpContext.Request.Url.GetLeftPart(UriPartial.Authority) + VirtualPathUtility.ToAbsolute("~/");
         }
     }
 }
