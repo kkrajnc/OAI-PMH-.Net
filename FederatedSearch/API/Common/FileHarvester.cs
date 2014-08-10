@@ -528,7 +528,7 @@ namespace FederatedSearch.API.Common
                 return;
             }
 
-            string basePath = Directory.GetCurrentDirectory() + "\\HarvestedFiles\\";
+            string basePath = Properties.directoryForHarvestedFiles + "\\";
             basePath += new Uri(dataProvider.BaseURL).Host + "\\";
             if (Properties.overwriteHarvestedFiles ? true : string.IsNullOrEmpty(record.Header.FilePath))
             {

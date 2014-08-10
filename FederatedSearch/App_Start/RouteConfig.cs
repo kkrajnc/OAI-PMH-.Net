@@ -17,7 +17,7 @@ namespace FederatedSearch
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
-                constraints: new { id = @"[a-zA-Z0-9\:\-\.\%]*" }
+                constraints: new { id = @"[a-zA-Z0-9\-]*" }
             );
         }
     }

@@ -94,7 +94,11 @@ namespace FederatedSearch.Controllers
             int page = 0)
         {
             string baseUrl = Common.GetBaseApiUrl(this);
-            if (string.IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id) && string.IsNullOrEmpty(search))
+            {
+                return View("MetadataItem", await OaiApiRestService.GetMetadata(baseUrl, id));
+            }
+            else
             {
                 /* add query params */
                 ViewBag.ItemsPerPage = ipp;
@@ -106,10 +110,6 @@ namespace FederatedSearch.Controllers
                 ViewBag.ResultCount = ml.ResultCount;
 
                 return View("MetadataList", ml.List);
-            }
-            else
-            {
-                return View("MetadataItem", await OaiApiRestService.GetMetadata(baseUrl, HttpUtility.UrlDecode(id)));
             }
         }
 

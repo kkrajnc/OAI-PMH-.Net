@@ -70,6 +70,7 @@ namespace FederatedSearch
             props["RetryRetrievalCount"] = new Property() { Key = "RetryRetrievalCount", Value = "3", Section = "hp" };
             props["OverwriteHarvestedFiles"] = new Property() { Key = "OverwriteHarvestedFiles", Value = "False", Section = "hp" };
             props["LimitHarvestedFileTypes"] = new Property() { Key = "LimitHarvestedFileTypes", Value = "True", Section = "hp" };
+            props["DirectoryForHarvestedFiles"] = new Property() { Key = "DirectoryForHarvestedFiles", Value = "C:\\OAIHarvestedFiles", Section = "hp" };
             props["AllowedMimeTypes"] = new Property()
             {
                 Key = "AllowedMimeTypes", 

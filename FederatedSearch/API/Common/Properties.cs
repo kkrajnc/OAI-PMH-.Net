@@ -208,6 +208,15 @@ namespace FederatedSearch.API /* .Common */
                 UpdatePropertySections();
             }
         }
+        public static string directoryForHarvestedFiles
+        {
+            get { return GetStringProperty("DirectoryForHarvestedFiles"); }
+            set
+            {
+                SetProperty("DirectoryForHarvestedFiles", value);
+                UpdatePropertySections();
+            }
+        }
 
         #endregion
 

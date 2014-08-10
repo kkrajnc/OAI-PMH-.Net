@@ -53,7 +53,7 @@
                     @Html.ActionLink(
                         Html.MetadataPreferedTitle(item.Title, "slv", true).ToHtmlString(),
                         "Metadata",
-                        new { id = HttpUtility.UrlEncode(item.OAI_Identifier) },
+                        new { id = item.HeaderId },
                         new { style = "font-size: 1.5em" })
                 </p>
                 <p>

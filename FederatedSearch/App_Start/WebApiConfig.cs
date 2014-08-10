@@ -14,7 +14,7 @@ namespace FederatedSearch
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { controller = "oai", id = UrlParameter.Optional },
-                constraints: new { id = @"[a-zA-Z0-9\:\-\.\%]*" }
+                constraints: new { id = @"[a-zA-Z0-9\-]*" }
             );
 
             // Uncomment the following line of code to enable query support for actions with an IQueryable or IQueryable<T> return type.

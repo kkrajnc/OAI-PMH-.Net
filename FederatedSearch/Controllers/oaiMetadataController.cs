@@ -36,15 +36,23 @@ namespace FederatedSearch.Controllers
 
         private IQueryable<Metadata> GetQuery(string identifier)
         {
-            return (from h in db.Header
-                    join om in db.ObjectMetadata on h.HeaderId equals om.ObjectId
-                    join md in db.Metadata on om.MetadataId equals md.MetadataId
-                    where om.ObjectType == Enums.ObjectType.OAIRecord
-                    where om.MetadataType == Enums.MetadataType.Metadata
-                    where (md.MdFormat & (byte)Enums.MetadataFormats.DublinCore) != 0
-                    where h.OAI_Identifier == identifier
-                    orderby h.Datestamp
-                    select md);
+            int headerId;
+            if (int.TryParse(identifier, out headerId))
+            {
+                return (from h in db.Header
+                        join om in db.ObjectMetadata on h.HeaderId equals om.ObjectId
+                        join md in db.Metadata on om.MetadataId equals md.MetadataId
+                        where om.ObjectType == Enums.ObjectType.OAIRecord
+                        where om.MetadataType == Enums.MetadataType.Metadata
+                        where (md.MdFormat & (byte)Enums.MetadataFormats.DublinCore) != 0
+                        where h.HeaderId == headerId
+                        orderby h.Datestamp
+                        select md);
+            }
+            else
+            {
+                return null;
+            }
         }
         private IQueryable<MetaSearchResult> GetQuery()
         {
