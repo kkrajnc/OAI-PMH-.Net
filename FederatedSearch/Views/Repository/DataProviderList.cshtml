@@ -277,7 +277,7 @@ else
     function editDataProvider(buttonElement, panelId) {
         var button = $(buttonElement);
         var panel = $(panelId);
-        if (panel.hasClass('collapse')) {
+        if (!panel.hasClass('in')) {
             toggleCollapse(panelId);
         }
 
@@ -326,7 +326,7 @@ else
                 setData(panel, data, 'prev');
                 button.siblings('button:contains(Save)').text('Edit');
                 button.text('Delete');
-                button.siblings('button:contains(ReIdentify)').removeProp('disabled');
+                button.siblings('button:contains(ReIdentify)').prop('disabled', false);
                 break;
         }
     }

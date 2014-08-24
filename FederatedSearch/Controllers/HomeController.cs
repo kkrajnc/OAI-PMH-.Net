@@ -78,7 +78,7 @@ namespace FederatedSearch.Controllers
             {
                 ApiResult = apiTime.TotalSeconds,
                 DataProviderResult = dataProviderTime.TotalSeconds,
-                Ratio = ((int)Math.Ceiling(dataProviderTime.TotalMilliseconds / apiTime.TotalMilliseconds)).ToString()
+                Ratio = (Math.Round(dataProviderTime.TotalMilliseconds / apiTime.TotalMilliseconds, 2, MidpointRounding.AwayFromZero)).ToString()
             });
         }
 

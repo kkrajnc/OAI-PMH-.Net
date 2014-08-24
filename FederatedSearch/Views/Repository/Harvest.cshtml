@@ -81,14 +81,14 @@
                     <td>
                         @Html.TextBoxFor(modelItem => item.MetadataPrefix, new { placeholder = "oai_dc", @class = "form-control" })
                     </td>
-                    <td>
-                        @Html.CheckBoxFor(modelItem => item.Exclude, new { @class = "form-control" })
+                    <td style="text-align: center;">
+                        @Html.CheckBoxFor(modelItem => item.Exclude)
                     </td>
-                    <td>
-                        @Html.CheckBoxFor(modelItem => item.FullHarvestDelete, new { @class = "form-control" })
+                    <td style="text-align: center;">
+                        @Html.CheckBoxFor(modelItem => item.FullHarvestDelete)
                     </td>
-                    <td>
-                        @Html.CheckBoxFor(modelItem => item.HarvestDeleteFiles, new { @class = "form-control" })
+                    <td style="text-align: center;">
+                        @Html.CheckBoxFor(modelItem => item.HarvestDeleteFiles)
                     </td>
                     @if (item.Stats != null)
                     {
@@ -150,14 +150,14 @@
                     <td>
                         <input type="text" placeholder="oai_dc" class="form-control" oninput="changeMetaFormatForAll(this)" />
                     </td>
-                    <td>
-                        <input type="checkbox" class="form-control" onchange="changeAllCheckboxesInColumn(this)" />
+                    <td style="text-align: center;">
+                        <input type="checkbox" onchange="changeAllCheckboxesInColumn(this)" />
                     </td>
-                    <td>
-                        <input type="checkbox" class="form-control" onchange="changeAllCheckboxesInColumn(this)" />
+                    <td style="text-align: center;">
+                        <input type="checkbox" onchange="changeAllCheckboxesInColumn(this)" />
                     </td>
-                    <td>
-                        <input type="checkbox" class="form-control" onchange="changeAllCheckboxesInColumn(this)" />
+                    <td style="text-align: center;">
+                        <input type="checkbox" onchange="changeAllCheckboxesInColumn(this)" />
                     </td>
                     <td></td>
                     <td style="text-align: center;">
@@ -468,7 +468,6 @@
 </script>
 <script src="@Url.Content("~/Scripts/CommonOAI.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
-<script src="@Url.Content("~/Scripts/jquery-ui-1.8.24.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui.min-1.11.1.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/bootstrap/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
 @Styles.Render("~/Content/bootstrap/bootstrap-datetimepicker.min.css")
-@Styles.Render("//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css")

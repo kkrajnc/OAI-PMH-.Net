@@ -15,6 +15,7 @@
 *----------------------------------------------------------------------------*@
 
 @using FederatedSearch.Models;
+@using FederatedSearch.API.MdFormats;
 @{
     ViewBag.Title = "OAI-PMH response time test";
     var options = new AjaxOptions()
@@ -26,6 +27,7 @@
     };
 
     var dataProviders = ViewBag.DataProviders as IEnumerable<OAIDataProvider> ?? new List<OAIDataProvider>();
+    var metadataFormats = FormatList.List;
 }
 
 <h2>Test response times</h2>
@@ -76,15 +78,43 @@
         <div class="col-md-10">
             <div id="fromCnt" class="cnt">
                 <label>From: </label>
-                <input type="datetime" class="form-control" oninput="changeQueryText()" data-name="from" />
+                @*<input type="datetime" class="form-control" oninput="changeQueryText()" data-name="from" />*@
+                <div id="fromDateTime" class="cnt2 input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default oaiBtn add-on">
+                            <i class="glyphicon" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i>
+                        </button>
+                    </span>
+                    <input data-format="yyyy-MM-dd T HH:mm:ss Z" type="text"
+                            class="form-control" oninput="changeQueryText()" data-name="from" />
+                </div>
             </div>
             <div id="untilCnt" class="cnt">
                 <label>Until: </label>
-                <input type="datetime" class="form-control" oninput="changeQueryText()" data-name="until" />
+                @*<input type="datetime" class="form-control" oninput="changeQueryText()" data-name="until" />*@
+                <div id="untilDateTime" class="cnt2 input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default oaiBtn add-on">
+                            <i class="glyphicon" data-time-icon="glyphicon glyphicon-time" data-date-icon="glyphicon glyphicon-calendar"></i>
+                        </button>
+                    </span>
+                    <input data-format="yyyy-MM-dd T HH:mm:ss Z" type="text"
+                            class="form-control" oninput="changeQueryText()" data-name="until" />
+                </div>
             </div>
             <div id="metaPrefixCnt" class="cnt">
                 <label>Metadata prefix: </label>
-                <input type="text" class="form-control" oninput="changeQueryText()" data-name="metadataPrefix" />
+                <select class="form-control" @(metadataFormats.Count() == 0 ? "disabled" : "") 
+                    oninput="changeQueryText()" data-name="metadataPrefix" >
+                    <option value="">Select metadata prefix</option>
+                    @foreach (var item in metadataFormats)
+                    {
+                        if(item.IsForList)
+                        {
+                            <option value="@(item.Prefix)">@(item.Prefix)</option>
+                        }
+                    }
+                </select>
             </div>
             <div id="setCnt" class="cnt">
                 <label>Set: </label>
@@ -156,12 +186,24 @@
 <div class="clearfix">
 </div>
 
-
-
 <div id="result"></div>
 
-<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+
 <script type="text/javascript">
+    
+    $(document).ready(function () {
+        $('div[id="fromDateTime"], div[id="untilDateTime"]').each(function () {
+            $(this).datetimepicker({
+                language: 'en',
+                pick12HourFormat: false
+            }).on('changeDate', function (e) {
+                var dtStr = $(this).children('input').val().replace(/ /g, '');
+                $(this).children('input').val(dtStr);
+                changeQueryText();
+            });
+        });
+    });
 
     function onSuccess(response) {
         $("#dp1Result").text(response.ApiResult + "s");
@@ -176,7 +218,7 @@
         if ($("#verbBtn").val() !== "Verb")
             str = "verb=" + $("#verbBtn").val() + "&";
 
-        $('.cnt').each(function (index, object) {
+        $('.cnt, .cnt2').each(function (index, object) {
             var obj = $(object);
             var child = $(obj.children()[1]);
             if (!obj.hasClass('hide') && child.val() !== '')
@@ -199,7 +241,9 @@
         switch (verb) {
             case 'Identify':
                 $('#fromCnt').addClass('hide');
+                $('#fromDateTime').addClass('hide');
                 $('#untilCnt').addClass('hide');
+                $('#untilDateTime').addClass('hide');
                 $('#metaPrefixCnt').addClass('hide');
                 $('#setCnt').addClass('hide');
                 $('#resTokenCnt').addClass('hide');
@@ -209,7 +253,9 @@
                 break;
             case 'GetRecord':
                 $('#fromCnt').addClass('hide');
+                $('#fromDateTime').addClass('hide');
                 $('#untilCnt').addClass('hide');
+                $('#untilDateTime').addClass('hide');
                 $('#metaPrefixCnt').removeClass('hide');
                 $('#setCnt').addClass('hide');
                 $('#resTokenCnt').addClass('hide');
@@ -219,7 +265,9 @@
                 break;
             case 'ListIdentifiers':
                 $('#fromCnt').removeClass('hide');
+                $('#fromDateTime').removeClass('hide');
                 $('#untilCnt').removeClass('hide');
+                $('#untilDateTime').removeClass('hide');
                 $('#metaPrefixCnt').removeClass('hide');
                 $('#setCnt').removeClass('hide');
                 $('#resTokenCnt').removeClass('hide');
@@ -229,7 +277,9 @@
                 break;
             case 'ListRecords':
                 $('#fromCnt').removeClass('hide');
+                $('#fromDateTime').removeClass('hide');
                 $('#untilCnt').removeClass('hide');
+                $('#untilDateTime').removeClass('hide');
                 $('#metaPrefixCnt').removeClass('hide');
                 $('#setCnt').removeClass('hide');
                 $('#resTokenCnt').removeClass('hide');
@@ -239,7 +289,9 @@
                 break;
             case 'ListMetadataFormats':
                 $('#fromCnt').addClass('hide');
+                $('#fromDateTime').addClass('hide');
                 $('#untilCnt').addClass('hide');
+                $('#untilDateTime').addClass('hide');
                 $('#metaPrefixCnt').addClass('hide');
                 $('#setCnt').addClass('hide');
                 $('#resTokenCnt').addClass('hide');
@@ -249,7 +301,9 @@
                 break;
             case 'ListSets':
                 $('#fromCnt').addClass('hide');
+                $('#fromDateTime').addClass('hide');
                 $('#untilCnt').addClass('hide');
+                $('#untilDateTime').addClass('hide');
                 $('#metaPrefixCnt').addClass('hide');
                 $('#setCnt').addClass('hide');
                 $('#resTokenCnt').removeClass('hide');
@@ -259,7 +313,9 @@
                 break;
             default:
                 $('#fromCnt').addClass('hide');
+                $('#fromDateTime').addClass('hide');
                 $('#untilCnt').addClass('hide');
+                $('#untilDateTime').addClass('hide');
                 $('#metaPrefixCnt').addClass('hide');
                 $('#setCnt').addClass('hide');
                 $('#resTokenCnt').addClass('hide');
@@ -268,3 +324,7 @@
         }
     }
 </script>
+<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui.min-1.11.1.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/bootstrap/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
+@Styles.Render("~/Content/bootstrap/bootstrap-datetimepicker.min.css")
