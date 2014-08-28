@@ -461,7 +461,7 @@ namespace FederatedSearch.API
                             }
                             if (!isList)
                             {
-                                return records.Count > 0 ? records[0].Header.OAI_Identifier : null;
+                                return records.Count > 0 ? records[0].Header.HeaderId.ToString() : null;
                             }
                         }
 

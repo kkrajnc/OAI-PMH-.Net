@@ -14,6 +14,7 @@
 *      along with OAI-PMH-.Net.  If not, see <http://www.gnu.org/licenses/>.
 *----------------------------------------------------------------------------*@
 
+@using FederatedSearch.API.MdFormats;
 @model IEnumerable<SelectListItem>
 @{
     ViewBag.Title = "Harvest Record";
@@ -25,12 +26,13 @@
 
     var options = new AjaxOptions()
     {
-        Url = "/Repository/Harvest/Record",
         HttpMethod = "post",
         LoadingElementId = "waiting",
         LoadingElementDuration = 10,
         OnSuccess = "onSuccess"
-    }; 
+    };
+
+    var metadataFormats = FormatList.List;
 }
 
 <h2>Harvest record</h2>
@@ -70,7 +72,17 @@
                 <td>Metadata format:
                 </td>
                 <td>
-                    @Html.TextBox("metadataPrefix", null, new { placeholder = "oai_dc", @class = "form-control" })
+                    <select class="form-control" @(metadataFormats.Count() == 0 ? "disabled" : "") 
+                        name="metadataPrefix" >
+                        <option value="">Select metadata prefix</option>
+                        @foreach (var item in metadataFormats)
+                        {
+                            if(item.IsForList)
+                            {
+                                <option value="@(item.Prefix)">@(item.Prefix)</option>
+                            }
+                        }
+                    </select>
                 </td>
             </tr>
             <tr>
@@ -96,7 +108,7 @@
             $("#failedAdding").show("fast");
         }
         else {
-            window.location.replace('@Url.Action("Metadata", "Home")/' + encodeURIComponent(encodeURIComponent(response.identifier)));
+            window.location.replace('@Url.Action("Metadata", "Home")/' + response.identifier);
         }
     }
 

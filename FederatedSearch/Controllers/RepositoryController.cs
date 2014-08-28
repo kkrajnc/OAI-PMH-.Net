@@ -197,10 +197,10 @@ namespace FederatedSearch.Controllers
                         return Json(new { status = stopAllStatus, operation = "stopAll" });
 
                     case "record":
-                        string oaiIdentifier = await OaiApiRestService.HarvestRecord(baseLocalUrl, baseURL, identifier, metadataPrefix, harvestFiles);
-                        if (!string.IsNullOrEmpty(oaiIdentifier))
+                        string oaiHeaderId = await OaiApiRestService.HarvestRecord(baseLocalUrl, baseURL, identifier, metadataPrefix, harvestFiles);
+                        if (!string.IsNullOrEmpty(oaiHeaderId))
                         {
-                            return Json(new { successfull = true, identifier = oaiIdentifier });
+                            return Json(new { successfull = true, identifier = oaiHeaderId });
                         }
                         return Json(new { successfull = false });
                 }

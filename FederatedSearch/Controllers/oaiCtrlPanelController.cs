@@ -111,15 +111,15 @@ namespace FederatedSearch.Controllers
             string metadataPrefix,
             bool? harvestFiles)
         {
-            string oaiIdentifier = Harvester.HarvestRecord(
+            string oaiHeaderId = Harvester.HarvestRecord(
                 baseURL,
                 identifier,
                 metadataPrefix,
                 Enums.DeDuplication.Skip,
                 harvestFiles.HasValue ? harvestFiles.Value : false);
-            if (!string.IsNullOrEmpty(oaiIdentifier))
+            if (!string.IsNullOrEmpty(oaiHeaderId))
             {
-                return Common.JsonResponse(oaiIdentifier);
+                return Common.JsonResponse(oaiHeaderId);
             }
             return Common.JsonNullResponse();
         }
