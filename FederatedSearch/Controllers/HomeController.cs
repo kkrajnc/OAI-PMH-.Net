@@ -70,7 +70,6 @@ namespace FederatedSearch.Controllers
 
                 stopWatch.Start();
                 apiContent = client.GetStringAsync(apiUrl).Result;
-                System.Threading.Thread.Sleep(3000);
                 stopWatch.Stop();
                 apiTime = stopWatch.Elapsed;
             }
